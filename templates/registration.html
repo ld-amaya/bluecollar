@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %} User Registration {% endblock %}
+
+{% block content %}
+    <h1>User Registration</h1>
+    <form action="">
+        {{forms.hidden_tag()}}
+        {% for form in forms if form.widget.input_type!='hidden' %}
+            <div class='form-group'>
+                {{ form.label }}
+                {{ form (class_='form-control') }}
+            </div>
+        {% endfor %}
+        <a href='/' class ='btn btn-success btn-md'> Cancel</a>
+        <input type="Submit" class = 'btn btn-primary btn-md' value='Submit'>
+    </form>
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block title %} Blue Collar Jobs {% endblock %}
+{% block content %}
+    <h2>Barangays</h2>
+    <ul>
+        {% for barangay in barangays %}
+            <li>
+                {{barangay.city}} - {{barangay.barangay}}
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}
