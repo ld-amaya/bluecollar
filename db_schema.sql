@@ -8,29 +8,22 @@ CREATE TABLE "users" (
   "mobile" int,
   "apartment_number" string(5),
   "building" string(50),
-  "street" string(50)
+  "street" string(50),
+  "city_id" int,
+  "barangay_id" int
 );
 
 CREATE TABLE "city" (
   "id" SERIAL PRIMARY KEY,
-  "name" string(50)
+  "name" string(50),
+  "user_id" int
 );
 
 CREATE TABLE "barangay" (
   "id" SERIAL PRIMARY KEY,
-  "name" string(50)
-);
-
-CREATE TABLE "city_barangay" (
-  "id" SERIAL PRIMARY KEY,
-  "barangay_id" int,
-  "city_id" int
-);
-
-CREATE TABLE "user_address" (
-  "id" SERIAL PRIMARY KEY,
-  "user_id" int,
-  "city_barangay_id" int
+  "name" string(50),
+  "city_id" int,
+  "user_id" int
 );
 
 CREATE TABLE "type" (
@@ -93,14 +86,6 @@ CREATE TABLE "user_message" (
   "message_to" int
 );
 
-ALTER TABLE "city_barangay" ADD FOREIGN KEY ("barangay_id") REFERENCES "barangay" ("id");
-
-ALTER TABLE "city_barangay" ADD FOREIGN KEY ("city_id") REFERENCES "city" ("id");
-
-ALTER TABLE "user_address" ADD FOREIGN KEY ("city_barangay_id") REFERENCES "city_barangay" ("id");
-
-ALTER TABLE "user_address" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
-
 ALTER TABLE "type" ADD FOREIGN KEY ("id") REFERENCES "user_type" ("type_id");
 
 ALTER TABLE "user_type" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
@@ -128,3 +113,9 @@ ALTER TABLE "job" ADD FOREIGN KEY ("id") REFERENCES "users" ("id");
 ALTER TABLE "user_job_type" ADD FOREIGN KEY ("job_type_id") REFERENCES "job" ("id");
 
 ALTER TABLE "user_job_type" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
+
+ALTER TABLE "city" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
+
+ALTER TABLE "barangay" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
+
+ALTER TABLE "barangay" ADD FOREIGN KEY ("city_id") REFERENCES "city" ("id");
