@@ -1,6 +1,36 @@
+from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
+
+
+class Service(db.Model):
+    """Create service types"""
+
+    __tablename__ = "services"
+    id = db.Column(db.Integer,
+                   primary_key=True,
+                   autoincrement=True)
+    name = db.Column(db.String(50),
+                     nullable=False)
+
+    user = db.relationship('User',
+                           secondary='userservices',
+                           backref='services')
+
+
+class User_Service(db.Model):
+    """Create user service relationship"""
+
+    __tablename__ = "userservices"
+
+    id = db.Column(db.Integer,
+                   primary_key=True,
+                   autoincrement=True)
+    user_id = db.Column(db.Integer,
+                        db.ForeignKey('users.id', ondelete='cascade'))
+    service_id = db.Column(db.Integer,
+                           db.ForeignKey('services.id', ondelete='cascade'))
 
 
 class Type(db.Model):
@@ -67,30 +97,23 @@ class Comment(db.Model):
     """Create a comment model"""
 
     __tablename__ = "comments"
+
     id = db.Column(db.Integer,
                    primary_key=True,
                    autoincrement=True)
     comment = db.Column(db.Text,
                         nullable=False)
-
-
-class User_Comment(db.Model):
-    """Creates relationship between user and comment"""
-
-    __tablename__ = "usercomments"
-
-    id = db.Column(db.Integer,
-                   primary_key=True,
-                   autoincrement=True)
-    comment_id = db.Column(db.Integer,
-                           db.ForeignKey("comments.id"),
-                           nullable=False)
     user_from = db.Column(db.Integer,
-                          db.ForeignKey("users.id"),
+                          db.ForeignKey("users.id", ondelete="cascade"),
                           nullable=False)
     user_to = db.Column(db.Integer,
-                        db.ForeignKey("users.id"),
+                        db.ForeignKey("users.id", ondelete="cascade"),
                         nullable=False)
+    timestamp = db.Column(
+        db.DateTime,
+        nullable=False,
+        default=datetime.utcnow(),
+    )
 
 
 class Rating(db.Model):
@@ -103,11 +126,16 @@ class Rating(db.Model):
     rating = db.Column(db.Integer,
                        nullable=False)
     user_from = db.Column(db.Integer,
-                          db.ForeignKey("users.id"),
+                          db.ForeignKey("users.id", ondelete="cascade"),
                           nullable=False)
     user_to = db.Column(db.Integer,
-                        db.ForeignKey("users.id"),
+                        db.ForeignKey("users.id", ondelete="cascade"),
                         nullable=False)
+    timestamp = db.Column(
+        db.DateTime,
+        nullable=False,
+        default=datetime.utcnow(),
+    )
 
 
 class Message (db.Model):
@@ -120,25 +148,38 @@ class Message (db.Model):
                    autoincrement=True)
     message = db.Column(db.Text,
                         nullable=False)
+    message_from = db.Column(db.Integer,
+                             db.ForeignKey("users.id", ondelete="cascade"),
+                             nullable=False)
+    message_to = db.Column(db.Integer,
+                           db.ForeignKey("users.id", ondelete="cascade"),
+                           nullable=False)
+    timestamp = db.Column(
+        db.DateTime,
+        nullable=False,
+        default=datetime.utcnow(),
+    )
 
 
-class User_Message(db.Model):
-    """Create user messages relationship"""
+class Register(db.Model):
+    """Create registration model for easy registration"""
 
-    __tablename__ = "usermessages"
+    __tablename__ = "registers"
 
     id = db.Column(db.Integer,
                    primary_key=True,
                    autoincrement=True)
-    message_id = db.Column(db.Integer,
-                           db.ForeignKey("messages.id"),
+    first_name = db.Column(db.String(50),
                            nullable=False)
-    message_from = db.Column(db.Integer,
-                             db.ForeignKey("users.id"),
-                             nullable=False)
-    message_to = db.Column(db.Integer,
-                           db.ForeignKey("users.id"),
-                           nullable=False)
+    last_name = db.Column(db.String(50),
+                          nullable=False)
+    email = db.Column(db.String(100),
+                      nullable=False)
+    password = db.Column(db.String(100),
+                         nullable=False)
+
+    city_id = db.Column(db.Integer, db.ForeignKey(
+        'cities.id', ondelete='cascade'))
 
 
 class User (db.Model):
@@ -163,27 +204,28 @@ class User (db.Model):
     apartment_number = db.Column(db.String(15))
     building = db.Column(db.String(50))
     street = db.Column(db.String(50))
-    address_id = db.Column(db.Integer,
-                           db.ForeignKey("addresses.id"))
+    city_id = db.Column(db.Integer,
+                        db.ForeignKey('cities.id', ondelete='cascade'))
+    barangay_id = db.Column(db.Integer,
+                            db.ForeignKey('barangays.id', ondelete='cascade'))
 
-    city = db.relationship("City",
-                           backref="users",
-                           cascade="all")
+    comment = db.relationship("Comment",
+                              secondary="comments",
+                              primaryjoin=(Comment.user_from == id),
+                              secondaryjoin=(Comment.user_to == id),
+                              backref="user")
 
-    comment = db.relationship("User",
-                              secondary="usercomments",
-                              primaryjoin=(User_Comment.user_from == id),
-                              secondaryjoin=(User_Comment.user_to == id))
-
-    rating = db.relationship("User",
+    rating = db.relationship("Rating",
                              secondary="ratings",
                              primaryjoin=(Rating.user_from == id),
-                             secondaryjoin=(Rating.user_to == id))
+                             secondaryjoin=(Rating.user_to == id),
+                             backref="user")
 
-    message = db.relationship("User",
-                              secondary="usermessages",
-                              primaryjoin=(User_Message.message_from == id),
-                              secondaryjoin=(User_Message.message_to == id))
+    message = db.relationship("Message",
+                              secondary="messages",
+                              primaryjoin=(Message.message_from == id),
+                              secondaryjoin=(Message.message_to == id),
+                              backref="use")
 
 
 class City(db.Model):
@@ -194,16 +236,10 @@ class City(db.Model):
     id = db.Column(db.Integer,
                    primary_key=True,
                    autoincrement=True)
-    name = db.Column(db.String(50),
-                     nullable=False)
+    name = db.Column(db.String(100))
 
-    user_id = db.Column(db.Integer,
-                        db.ForeignKey("users.id"))
-
-    barangay = db.relationship("Barangay",
-                               secondary="addresses",
-                               backref="city",
-                               cascade="all")
+    user = db.relationship("User", backref="city")
+    client = db.relationship("Register", backref="city")
 
 
 class Barangay(db.Model):
@@ -214,27 +250,10 @@ class Barangay(db.Model):
     id = db.Column(db.Integer,
                    primary_key=True,
                    autoincrement=True)
-    name = db.Column(db.String(50),
-                     nullable=False)
+    city = db.Column(db.String(100))
+    barangay = db.Column(db.String(100))
 
-
-class Address(db.Model):
-    """Create city and barangay relationship table"""
-
-    __tablename__ = "addresses"
-
-    id = db.Column(db.Integer,
-                   primary_key=True,
-                   autoincrement=True)
-
-    city_id = db.Column(db.Integer,
-                        db.ForeignKey("cities.id"))
-    barangay_id = db.Column(db.Integer,
-                            db.ForeignKey("barangays.id"))
-
-    user = db.relationship("User",
-                           backref="address",
-                           cascade="all")
+    user = db.relationship("User", backref="barangay")
 
 
 def connect_db(app):
