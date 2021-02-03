@@ -1,0 +1,20 @@
+.bg-light{
+    background-color: #7952b3 !important;
+    
+}
+.nav-link,
+.navbar-brand {
+    color: white !important;
+}
+
+.fb_logo{
+    width:10%;
+}
+
+.fb_logo_user {
+    width: 15%;
+}
+
+.none{
+    color:red;
+}
