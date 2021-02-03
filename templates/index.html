@@ -2,12 +2,76 @@
 
 {% block title %} Blue Collar Jobs {% endblock %}
 {% block content %}
-    <h2>Barangays</h2>
-    <ul>
-        {% for barangay in barangays %}
-            <li>
-                {{barangay.city}} - {{barangay.barangay}}
-            </li>
-        {% endfor %}
-    </ul>
+    <h2>Top Carpenters</h2>
+        <div class="row">
+            {% for carpenter in carpenters %}
+                <div class="col-md-3 my-3">
+                    <div class="card">
+                        <a href="/worker/{{carpenter.id}}">
+                            <img src="/static/images/icon.png" class ="card-img-top" alt="default image">
+                        </a>
+                        <div class="card-body">
+                            <h6>{{carpenter.first_name}} {{carpenter.last_name}} </h6>
+                            <p class="card-text">
+                                <a href="{{carpenter.facebook}}">  <img class="fb_logo" src="/static/images/fb_logo.svg" alt=""> </a> - {{carpenter.service[0].name}}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <h2>Top Painters</h2>
+        <div class="row">
+            {% for painter in painters %}
+                <div class="col-md-3 my-3">
+                    <div class="card">
+                        <a href="/worker/{{painter.id}}">
+                            <img src="/static/images/icon.png" class ="card-img-top" alt="default image">
+                        </a>
+                        <div class="card-body">
+                            <h6>{{painter.first_name}} {{painter.last_name}} </h6>
+                            <p class="card-text">
+                                <a href="{{painter.facebook}}">  <img class="fb_logo" src="/static/images/fb_logo.svg" alt=""> </a> - {{painter.service[0].name}}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <h2>Top Electrician</h2>
+        <div class="row">
+            {% for electrician in electricians %}
+                <div class="col-md-3 my-3">
+                    <div class="card">
+                        <a href="/worker/{{electrician.id}}">
+                            <img src="/static/images/icon.png" class ="card-img-top" alt="default image">
+                        </a>
+                        <div class="card-body">
+                            <h6>{{electrician.first_name}} {{electrician.last_name}} </h6>
+                            <p class="card-text">
+                                <a href="{{electrician.facebook}}">  <img class="fb_logo" src="/static/images/fb_logo.svg" alt=""> </a> - {{electrician.service[0].name}}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <h2>Top Plumber</h2>
+        <div class="row">
+            {% for plumber in plumbers %}
+                <div class="col-md-3 my-3">
+                    <div class="card">
+                        <a href="/worker/{{plumber.id}}">
+                            <img src="/static/images/icon.png" class ="card-img-top" alt="default image">
+                        </a>    
+                        <div class="card-body">
+                            <h5>{{plumber.first_name}} {{plumber.last_name}} </h5>
+                            <p class="card-text">
+                                <a href="{{plumber.facebook}}">  <img class="fb_logo" src="/static/images/fb_logo.svg" alt=""> </a> - {{plumber.service[0].name}}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
 {% endblock %}
