@@ -16,7 +16,7 @@ class Service(db.Model):
 
     user = db.relationship('User',
                            secondary='userservices',
-                           backref='services')
+                           backref='service')
 
 
 class User_Service(db.Model):
@@ -74,9 +74,9 @@ class Job(db.Model):
                     nullable=False)
     description = db.Column(db.Text,
                             nullable=True)
-    users = db.relationship("User",
-                            secondary="userjobs",
-                            backref="jobs")
+    user = db.relationship("User",
+                           secondary="userjobs",
+                           backref="job")
 
 
 class User_Job(db.Model):
@@ -182,7 +182,7 @@ class Register(db.Model):
         'cities.id', ondelete='cascade'))
 
 
-class User (db.Model):
+class User(db.Model):
     """Create user model"""
 
     __tablename__ = "users"
@@ -194,13 +194,11 @@ class User (db.Model):
                            nullable=False)
     last_name = db.Column(db.String(50),
                           nullable=False)
-    email = db.Column(db.String(100),
-                      nullable=False)
+    email = db.Column(db.String(100))
     password = db.Column(db.Text,
                          nullable=False)
     facebook = db.Column(db.Text)
-    mobile = db.Column(db.Integer,
-                       nullable=False)
+    mobile = db.Column(db.Integer)
     apartment_number = db.Column(db.String(15))
     building = db.Column(db.String(50))
     street = db.Column(db.String(50))
@@ -208,7 +206,7 @@ class User (db.Model):
                         db.ForeignKey('cities.id', ondelete='cascade'))
     barangay_id = db.Column(db.Integer,
                             db.ForeignKey('barangays.id', ondelete='cascade'))
-
+    profile = db.Column(db.Text)
     comment = db.relationship("Comment",
                               secondary="comments",
                               primaryjoin=(Comment.user_from == id),
