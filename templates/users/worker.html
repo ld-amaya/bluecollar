@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %} User Information {% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card">
+                <img src="/static/images/icon.png" class ="card-img-top" alt="default image">
+                <div class="card-body">
+                    <h6 class = "text-center">{{user.first_name}} {{user.last_name}} </h6>
+                    <p class="card-text">
+                        <p><i class="fas fa-mobile-alt"></i><span> {{user.mobile}} </span> </p>
+                        <p><i class="fas fa-envelope-open-text"></i>
+                            {% if user.email %}
+                                <span> <a href="mailto:{{user.email}}"></a> {{user.email}} </span>
+                            {% else %}
+                                <span class = 'none'> None </span>
+                            {% endif %}
+                        </p>
+                        <p>
+                            <i class="fas fa-tools"></i>
+                            <span> {{user.service[0].name}} </span>
+                        </p>
+                        <div class="text-center mt-2">
+                            <a href="{{user.facebook}}"> Find me on <img class="fb_logo_user" src="/static/images/fb_logo.svg" alt=""> or </a> 
+                            <p><a href="/worker/{{user.id}}/message" class = "btn btn-primary btn-md mt-2"> Send me a Message </a></p>
+                        </div>
+                        
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8 mb-2">
+            {% if user.job[0] %}
+                <h2>{{user.job[0].job}}</h2>
+                <img src="/static/images/default-image.png" alt="">
+                <hr />
+                <h5 class="mt-3">Description</h5>
+                <p>
+                    {{user.job[0].description}}
+                </p>
+                <hr>
+                <h5 class="mt-3">Location</h5>
+                <p>
+                    <i class="fas fa-map-marker-alt"></i> <span> Barangay {{user.barangay.barangay}}, {{user.barangay.city}} </span>
+                </p>
+            {% else %}
+                <h2>No Title</h2>
+                <img src="/static/images/default-image.png" alt="">
+                <hr />
+                <h5 class="mt-3">Description</h5>
+                <p></p>
+                <hr>
+                <h5 class="mt-3">Location</h5>
+                <p>
+                    <i class="fas fa-map-marker-alt"></i> <span> Barangay {{user.barangay.barangay}}, {{user.barangay.city}} </span>
+                </p>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
