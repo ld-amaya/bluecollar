@@ -4,12 +4,18 @@
 
 {% block content %}
     <h1>User Registration</h1>
-    <form action="">
-        {{forms.hidden_tag()}}
-        {% for form in forms if form.widget.input_type!='hidden' %}
+    <form action="/registration" method="POST">
+        {% include "_flash.html" %}
+        {{form.hidden_tag()}}
+        {% for field in form if field.widget.input_type!='hidden' %}
             <div class='form-group'>
-                {{ form.label }}
-                {{ form (class_='form-control') }}
+                {{ field.label }}
+                {{ field (class_='form-control') }}
+                {% for err in field.errors %}
+                    <small class = "badge badge-danger mt-1">
+                        {{err}}
+                    </small>
+                {% endfor %}
             </div>
         {% endfor %}
         <a href='/' class ='btn btn-success btn-md'> Cancel</a>
