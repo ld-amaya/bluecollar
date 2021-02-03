@@ -4,46 +4,6 @@ from csv import DictReader
 from app import app
 from models import db, connect_db, User, City, Barangay, Service, User_Service, Type, User_Type, Job, User_Job, Comment, Rating, Message
 
-with open('generator/city.csv') as city:
-    db.session.bulk_insert_mappings(City, DictReader(city))
-
-with open('generator/bar.csv') as city:
-    db.session.bulk_insert_mappings(Barangay, DictReader(city))
-
-db.session.commit()
-
-user1 = User(
-    first_name='Lou',
-    last_name='Amaya',
-    email='louamayame.com',
-    password='1234',
-    facebook='facebooklink',
-    mobile='123456789',
-    apartment_number='room 1',
-    building='bldg 2',
-    street='street 3',
-    city_id=1,
-    barangay_id=1
-)
-
-user2 = User(
-    first_name='Rey',
-    last_name='Amaya',
-    email='reyamaya@me.com',
-    password='5432',
-    facebook='reyfacebooklink',
-    mobile='98765432',
-    apartment_number='room 2',
-    building='bldg 3',
-    street='street 4',
-    city_id=1,
-    barangay_id=1
-)
-
-db.session.add(user1)
-db.session.add(user2)
-db.session.commit()
-
 # Create user services
 service1 = Service(
     name='Carpenter'
@@ -63,25 +23,6 @@ db.session.add(service3)
 db.session.add(service4)
 db.session.commit()
 
-# Associate user with service
-userservice1 = User_Service(
-    user_id=1,
-    service_id=1
-)
-userservice2 = User_Service(
-    user_id=2,
-    service_id=2
-)
-userservice3 = User_Service(
-    user_id=1,
-    service_id=3
-)
-db.session.add(userservice1)
-db.session.add(userservice2)
-db.session.add(userservice3)
-db.session.commit()
-
-
 # Create Types of User
 client = Type(
     name='client'
@@ -98,18 +39,26 @@ db.session.add(bluecollar)
 db.session.add(admin)
 db.session.commit()
 
-# Create User Type relationship
-usertype1 = User_Type(
-    user_id=1,
-    type_id=1
-)
-usertype2 = User_Type(
-    user_id=2,
-    type_id=2
-)
-db.session.add(usertype1)
-db.session.add(usertype2)
+
+with open('generator/city.csv') as city:
+    db.session.bulk_insert_mappings(City, DictReader(city))
+
+with open('generator/bar.csv') as city:
+    db.session.bulk_insert_mappings(Barangay, DictReader(city))
+
+with open('generator/users.csv') as user:
+    db.session.bulk_insert_mappings(User, DictReader(user))
+
 db.session.commit()
+
+with open('generator/user_type.csv') as type:
+    db.session.bulk_insert_mappings(User_Type, DictReader(type))
+
+with open('generator/user_service.csv') as service:
+    db.session.bulk_insert_mappings(User_Service, DictReader(service))
+
+db.session.commit()
+
 
 job1 = Job(
     job="House Painting",
@@ -148,8 +97,8 @@ comment1 = Comment(
 
 comment2 = Comment(
     comment="Door was sturdy and nicely done!",
-    user_from=2,
-    user_to=1
+    user_from=1,
+    user_to=3
 )
 
 db.session.add(comment1)
@@ -158,14 +107,14 @@ db.session.commit()
 
 rating1 = Rating(
     rating=4,
-    user_from=2,
-    user_to=1
+    user_from=1,
+    user_to=4
 )
 
 rating2 = Rating(
     rating=5,
     user_from=1,
-    user_to=2
+    user_to=5
 )
 
 db.session.add(rating1)
@@ -175,12 +124,12 @@ db.session.commit()
 message1 = Message(
     message="Are you available on Thursday?",
     message_from=1,
-    message_to=2
+    message_to=6
 )
 
 message2 = Message(
     message="Yes I will be, what do you need?",
-    message_from=2,
+    message_from=6,
     message_to=1
 )
 
