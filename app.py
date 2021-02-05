@@ -48,7 +48,9 @@ def worker_details(id):
     """Handles worker details"""
 
     user = User.query.get_or_404(id)
-    return render_template("/users/worker.html", user=user)
+    # comment_id = [f.comment_id for f in comments if f.user_to == id]
+    comments = Comment.query.filter(Comment.user_to_id == id).all()
+    return render_template("/users/worker.html", user=user, comments=comments)
 
 ###### POST ROUTES ###########################################
 
@@ -75,6 +77,7 @@ def register():
             return render_template("registration.html", form=form)
         sess = user.register_user()
         user.Add_User_Type(sess.id)
+        session['user_id'] = sess.id
         session['email'] = sess.email
         session['name'] = sess.first_name
         return redirect("/")
