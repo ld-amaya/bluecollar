@@ -8,9 +8,11 @@ class Service(db.Model):
     """Create service types"""
 
     __tablename__ = "services"
+
     id = db.Column(db.Integer,
                    primary_key=True,
                    autoincrement=True)
+
     name = db.Column(db.String(50),
                      nullable=False)
 
@@ -103,17 +105,19 @@ class Comment(db.Model):
                    autoincrement=True)
     comment = db.Column(db.Text,
                         nullable=False)
-    user_from = db.Column(db.Integer,
-                          db.ForeignKey("users.id", ondelete="cascade"),
-                          nullable=False)
-    user_to = db.Column(db.Integer,
-                        db.ForeignKey("users.id", ondelete="cascade"),
-                        nullable=False)
+    user_from_id = db.Column(db.Integer,
+                             db.ForeignKey("users.id", ondelete="cascade"),
+                             nullable=False)
+    user_to_id = db.Column(db.Integer,
+                           db.ForeignKey("users.id", ondelete="cascade"),
+                           nullable=False)
     timestamp = db.Column(
         db.DateTime,
         nullable=False,
         default=datetime.utcnow(),
     )
+
+    user = db.relationship("User", foreign_keys=[user_from_id])
 
 
 class Rating(db.Model):
@@ -207,23 +211,26 @@ class User(db.Model):
     barangay_id = db.Column(db.Integer,
                             db.ForeignKey('barangays.id', ondelete='cascade'))
     profile = db.Column(db.Text)
-    comment = db.relationship("Comment",
-                              secondary="comments",
-                              primaryjoin=(Comment.user_from == id),
-                              secondaryjoin=(Comment.user_to == id),
-                              backref="user")
 
-    rating = db.relationship("Rating",
+    comment_from = db.relationship("User",
+                                   secondary="comments",
+                                   primaryjoin=(Comment.user_to_id == id),
+                                   secondaryjoin=(Comment.user_from_id == id))
+
+    comment_to = db.relationship("User",
+                                 secondary="comments",
+                                 primaryjoin=(Comment.user_from_id == id),
+                                 secondaryjoin=(Comment.user_to_id == id))
+
+    rating = db.relationship("User",
                              secondary="ratings",
                              primaryjoin=(Rating.user_from == id),
-                             secondaryjoin=(Rating.user_to == id),
-                             backref="user")
+                             secondaryjoin=(Rating.user_to == id))
 
-    message = db.relationship("Message",
+    message = db.relationship("User",
                               secondary="messages",
                               primaryjoin=(Message.message_from == id),
-                              secondaryjoin=(Message.message_to == id),
-                              backref="use")
+                              secondaryjoin=(Message.message_to == id))
 
 
 class City(db.Model):
