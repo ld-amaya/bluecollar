@@ -91,18 +91,40 @@ db.session.commit()
 
 comment1 = Comment(
     comment="Amazing job!!!",
-    user_from=1,
-    user_to=2
+    user_from_id=1,
+    user_to_id=2
 )
 
 comment2 = Comment(
     comment="Door was sturdy and nicely done!",
-    user_from=1,
-    user_to=3
+    user_from_id=1,
+    user_to_id=5
 )
+
+comment3 = Comment(
+    comment="Yes, it is sturdy, door is made of mahogany",
+    user_from_id=5,
+    user_to_id=5
+)
+
+comment4 = Comment(
+    comment="How much for the door?",
+    user_from_id=3,
+    user_to_id=5
+)
+
+comment5 = Comment(
+    comment="Do you do cabinets also?",
+    user_from_id=4,
+    user_to_id=5
+)
+
 
 db.session.add(comment1)
 db.session.add(comment2)
+db.session.add(comment3)
+db.session.add(comment4)
+db.session.add(comment5)
 db.session.commit()
 
 rating1 = Rating(
