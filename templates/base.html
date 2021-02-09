@@ -5,14 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- font awesome  -->
     <script src="https://kit.fontawesome.com/0a18e92247.js" crossorigin="anonymous"></script>
+    
     <!-- bootstrap cdn   -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/static/app.css">
+    <link rel="stylesheet" href="/static/css/app.css">
     <title>{% block title %} {% endblock %}</title>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light ">
-        <a class="navbar-brand" href="#">Raket</a>
+        <a class="navbar-brand" href="#">Fix This</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -20,7 +21,7 @@
         <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
             <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
             <li class="nav-item active">
-                <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+                <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="#">Link</a>
@@ -29,10 +30,14 @@
                 <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
             </li>
             </ul>
-            <form class="form-inline my-2 my-lg-0">
-            <input class="form-control mr-sm-2" type="search" placeholder="Search">
-            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-            </form>
+            <login class="form-inline my-2 my-lg-0">
+                {% if session['uid'] %}
+                    <a href="/logout"class ="btn btn-outline-primary btn-sm mr-1" id = "login"> Logout </a>
+                {% else %}
+                    <a href="/login"class ="btn btn-outline-primary btn-sm mr-1" id = "login"> Login </a>
+                    <input type="button" class ="btn btn-primary btn-sm ml-1" id="register" value ="Post Your Job">
+                {% endif %}
+            </login>
         </div>
     </nav>
     <div class="jumbotron"></div>
@@ -41,13 +46,96 @@
         {% endblock %}
     </div>
 
+    <section class="login_modal">
+        <!-- Modal -->
+        <div class="modal fade" id="loginmodal" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="staticBackdropLabel">Login or Signup</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <form action="">
+                        <div class = "text-center">
+                            <img src="/static/images/logo.png" id = "logo" alt="">
+                        </div>
+                        <div class="modal-body">
+                            <input type="text" class = "form-control" name = "modal_email" id = "modal_email" placeholder="email">
+                            <input type="password" class = "form-control" name = "modal_password" id = "modal_password" placeholder="password">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary">Login</button>
+                        </div>
+                        <div class ="text-center mt-2 mb-5 text-danger">
+                            Don't have an account?  <a href ='#' class ='text-primary' id ="createUser"> Create one </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="user_select_modal">
+        <!-- Modal -->
+        <div class="modal fade" id="usermodal" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="staticBackdropLabel">Select One</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <form action="">
+                        <div class="modal-body text-center">
+                            <a href="/registration/worker" class="btn btn-primary mr-2">Blue Collar</a>
+                            <a href="/registration/user" class ="btn btn-success">Regular User</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="email_taken_modal">
+        <!-- Modal -->
+        <div class="modal fade" id="emailtakenmodal" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="staticBackdropLabel">Email Alert</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <form action="">
+                        <div class="modal-body text-center">
+                            The email address is already registered in our system. Please login below or use another email
+                            <input type="text" class = "form-control" name = "modal_email_taken" id = "modal_email_taken" placeholder="email">
+                            <input type="password" class = "form-control" name = "modal_password_taken" id = "modal_password_taken" placeholder="password">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary">Login</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- jquery cdn -->
     <script src="https://unpkg.com/jquery"></script>
     <!-- bootstrap jquery cdn  -->
     <script src = 'https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js'></script>
     <!-- axios cdn  -->
     <script src="https://unpkg.com/axios/dist/axios.js"></script>
+    <script src="/static/js/app.js"></script>
 
-    <script src="/static/app.js"></script>
-</body>
+    {% block scripts %} 
+    {% endblock %}
+</body> 
 </html>

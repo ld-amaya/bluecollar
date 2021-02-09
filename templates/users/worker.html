@@ -6,7 +6,12 @@
     <div class="row">
         <div class="col-md-3">
             <div class="card">
-                <img src="/static/images/icon.png" class ="card-img-top" alt="default image">
+                <img src="/static/images/profiles/{{user.profile}}" class ="card-img-top" alt="default image">
+                <h6 class ="mt-2 text-center">
+                    {% for i in range(ave-1) %}
+                        <i class="fas fa-star"></i>
+                    {% endfor %}
+                </h6>
                 <div class="card-body">
                     <h6 class = "text-center">{{user.first_name}} {{user.last_name}} </h6>
                     <p class="card-text">
@@ -35,6 +40,7 @@
             {% if user.job[0] %}
                 <h2>{{user.job[0].job}}</h2>
                 <img src="/static/images/default-image.png" alt="">
+                <h5>{{ave}}</h5>
                 <hr />
                 <h5 class="mt-3">Description</h5>
                 <p>
@@ -55,16 +61,33 @@
             {% endif %}
             <h5 class="mt-3">Location</h5>
             <p>
-                <i class="fas fa-map-marker-alt"></i> <span> Barangay {{user.barangay.barangay}}, {{user.barangay.city}} </span>
+                <i class="fas fa-map-marker-alt"></i> <span> {{user.city.name}} </span>
             </p>
-            <h5>Comments</h5>
-            <ul>
+            <hr />
+            <h5 class = "mt-3">Comments</h5>
                 {% for comment in comments%}
-                    <li>
-                        {{comment.comment}} - {{comment.user.first_name}}
-                    </li>
+                    <div class = "mt-3">
+                        <div class="form-inline">
+                            <div class="mr-auto">
+                                <span class="font-italic">{{comment.user.first_name}} {{comment.user.last_name}}</span>
+                                <span class = "comment_header">
+                                    on {{comment.timestamp}}
+                                </span>
+                            </div>
+                            <div class="my-2 my-lg-0">
+                                {% for i in range (comment.rating-1) %}
+                                    <i class="fas fa-star"></i>
+                                {% endfor %} <br/>
+                            </div>
+                        </div>
+                        <div class="font-weight-bold font-italic">
+                            {{comment.title}}
+                        </div>
+                    </div>
+                    <div>
+                        {{comment.comment}}
+                    </div>
                 {% endfor %}
-            </ul>
         </div>
     </div>
 {% endblock %}
