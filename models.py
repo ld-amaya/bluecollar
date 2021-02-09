@@ -1,7 +1,10 @@
+from flask_bcrypt import Bcrypt
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 
+bcrypt = Bcrypt()
 db = SQLAlchemy()
+profile_pix = "default-icon.png"
 
 
 class Service(db.Model):
@@ -103,8 +106,9 @@ class Comment(db.Model):
     id = db.Column(db.Integer,
                    primary_key=True,
                    autoincrement=True)
-    comment = db.Column(db.Text,
-                        nullable=False)
+    title = db.Column(db.Text)
+    comment = db.Column(db.Text)
+    rating = db.Column(db.Integer)
     user_from_id = db.Column(db.Integer,
                              db.ForeignKey("users.id", ondelete="cascade"),
                              nullable=False)
@@ -118,28 +122,6 @@ class Comment(db.Model):
     )
 
     user = db.relationship("User", foreign_keys=[user_from_id])
-
-
-class Rating(db.Model):
-    """Create a rating model"""
-
-    __tablename__ = "ratings"
-    id = db.Column(db.Integer,
-                   primary_key=True,
-                   autoincrement=True)
-    rating = db.Column(db.Integer,
-                       nullable=False)
-    user_from = db.Column(db.Integer,
-                          db.ForeignKey("users.id", ondelete="cascade"),
-                          nullable=False)
-    user_to = db.Column(db.Integer,
-                        db.ForeignKey("users.id", ondelete="cascade"),
-                        nullable=False)
-    timestamp = db.Column(
-        db.DateTime,
-        nullable=False,
-        default=datetime.utcnow(),
-    )
 
 
 class Message (db.Model):
@@ -165,27 +147,6 @@ class Message (db.Model):
     )
 
 
-class Register(db.Model):
-    """Create registration model for easy registration"""
-
-    __tablename__ = "registers"
-
-    id = db.Column(db.Integer,
-                   primary_key=True,
-                   autoincrement=True)
-    first_name = db.Column(db.String(50),
-                           nullable=False)
-    last_name = db.Column(db.String(50),
-                          nullable=False)
-    email = db.Column(db.String(100),
-                      nullable=False)
-    password = db.Column(db.String(100),
-                         nullable=False)
-
-    city_id = db.Column(db.Integer, db.ForeignKey(
-        'cities.id', ondelete='cascade'))
-
-
 class User(db.Model):
     """Create user model"""
 
@@ -198,19 +159,17 @@ class User(db.Model):
                            nullable=False)
     last_name = db.Column(db.String(50),
                           nullable=False)
-    email = db.Column(db.String(100))
+    email = db.Column(db.String(100), unique=True)
     password = db.Column(db.Text,
                          nullable=False)
     facebook = db.Column(db.Text)
-    mobile = db.Column(db.Integer)
+    mobile = db.Column(db.String(50))
     apartment_number = db.Column(db.String(15))
     building = db.Column(db.String(50))
     street = db.Column(db.String(50))
     city_id = db.Column(db.Integer,
                         db.ForeignKey('cities.id', ondelete='cascade'))
-    barangay_id = db.Column(db.Integer,
-                            db.ForeignKey('barangays.id', ondelete='cascade'))
-    profile = db.Column(db.Text)
+    profile = db.Column(db.Text, default=profile_pix)
 
     comment_from = db.relationship("User",
                                    secondary="comments",
@@ -222,15 +181,25 @@ class User(db.Model):
                                  primaryjoin=(Comment.user_from_id == id),
                                  secondaryjoin=(Comment.user_to_id == id))
 
-    rating = db.relationship("User",
-                             secondary="ratings",
-                             primaryjoin=(Rating.user_from == id),
-                             secondaryjoin=(Rating.user_to == id))
-
     message = db.relationship("User",
                               secondary="messages",
                               primaryjoin=(Message.message_from == id),
                               secondaryjoin=(Message.message_to == id))
+
+    def serialized_email(self):
+        """Return serialized email"""
+        return{
+            "email": self.email
+        }
+
+    @classmethod
+    def login(cls, email, password):
+        """Authenticates user"""
+
+        user = User.query.filter_by(email=email).first()
+        if user and bcrypt.check_password_hash(user.password, password):
+            return user
+        return False
 
 
 class City(db.Model):
@@ -244,21 +213,6 @@ class City(db.Model):
     name = db.Column(db.String(100))
 
     user = db.relationship("User", backref="city")
-    client = db.relationship("Register", backref="city")
-
-
-class Barangay(db.Model):
-    """Create barangay model"""
-
-    __tablename__ = "barangays"
-
-    id = db.Column(db.Integer,
-                   primary_key=True,
-                   autoincrement=True)
-    city = db.Column(db.String(100))
-    barangay = db.Column(db.String(100))
-
-    user = db.relationship("User", backref="barangay")
 
 
 def connect_db(app):
