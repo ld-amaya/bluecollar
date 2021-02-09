@@ -1,0 +1,45 @@
+.bg-light{
+    background-color: #7952b3 !important;
+    
+}
+.nav-link,
+.navbar-brand {
+    color: white !important;
+}
+
+.fb_logo{
+    width:10%;
+}
+
+.fb_logo_user {
+    width: 15%;
+}
+.comment_header{
+    font-size: 0.8em;
+    font-style: italic;
+}
+.none{
+    color:red;
+}
+
+.fa-star{
+    color:rgb(55, 152, 231);
+}
+
+.fa-users,
+.fa-hard-hat{
+    color:red;
+    font-size: 10em;
+}
+
+.user_selection{
+    font-size: 0.3em;
+}
+
+#signup, a, #login{
+    color: white
+}
+
+#logo{
+    width: 80%;
+}
