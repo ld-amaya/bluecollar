@@ -1,11 +1,14 @@
 import os
 import requests
 import json
+import uuid
 from flask import Flask, request, render_template, jsonify, flash, session, redirect
 from flask_debugtoolbar import DebugToolbarExtension
-from models import db, connect_db, User, City, Barangay, Service, User_Service, Type, User_Type, Job, User_Job, Comment, Rating, Message
-from forms import RegistrationForm
+from models import db, connect_db, User, City, Service, User_Service, Type, User_Type, Job, User_Job, Comment, Message
+from forms import RegistrationForm, WorkerForm, LoginForm
 from validation import Validate
+from mail import Email
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'iamlou'
@@ -18,7 +21,39 @@ app.config['SQLALCHEMY_DATABASE_URI'] = (
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True
 
+# # File upload Settings
+app.config['UPLOAD_PATH'] = 'static/images/profiles/'
+app.config['UPLOAD_EXTENSIONS'] = ['.jpg', '.png', '.gif']
+
 connect_db(app)
+
+##############################################################################
+
+
+def login_user(user):
+    """Create user sessions"""
+
+    session['uid'] = user.id
+    session['email'] = user.email
+    session['name'] = user.first_name
+
+
+def logout_user():
+    """Delete all sessions"""
+    del session['uid']
+    del session['email']
+    del session['name']
+
+
+def Validate_Image(filename):
+    """Validate image extension"""
+    file_ext = os.path.splitext(filename)[1]
+    if file_ext not in app.config['UPLOAD_EXTENSIONS']:
+        return False
+    return True
+
+
+##############################################################################
 
 
 @app.route("/")
@@ -43,42 +78,127 @@ def homepage():
 ###### GET ROUTES ###########################################
 
 
-@app.route("/worker/<int:id>")
+@ app.route("/worker/<int:id>")
 def worker_details(id):
     """Handles worker details"""
 
     user = User.query.get_or_404(id)
     # comment_id = [f.comment_id for f in comments if f.user_to == id]
     comments = Comment.query.filter(Comment.user_to_id == id).all()
-    return render_template("/users/worker.html", user=user, comments=comments)
+    ave = 0
+    rate = [c.rating for c in comments]
+    if rate:
+        ave = sum(rate) / len(rate)
+    return render_template("/users/worker.html", user=user, comments=comments, ave=round(ave))
+
+###### API REQUESTS ROUTES ###########################################
+
+
+@ app.route("/email/<email>", methods=["POST"])
+def check_email_if_existing(email):
+    """Handles return of services list"""
+    data = [e.serialized_email()
+            for e in User.query.filter(User.email == email).all()]
+    return jsonify(data)
 
 ###### POST ROUTES ###########################################
 
 
-@app.route("/registration", methods=['GET', 'POST'])
-def register():
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    """Handles User Login"""
+
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.login(form.email.data, form.password.data)
+        if user:
+            login_user(user)
+            return redirect("/")
+    return render_template("/users/login.html", form=form)
+
+
+@app.route("/logout")
+def logout():
+    """Handles User Logout"""
+    logout_user()
+    return redirect("/")
+
+
+@ app.route("/registration/<user_type>", methods=['GET', 'POST'])
+def register(user_type):
     """Handles User Registration"""
     cities = City.query.all()
-    form = RegistrationForm(cities=cities)
+    if user_type == 'user':
+        form = RegistrationForm(cities=cities)
+        ut = 1
+    elif user_type == 'worker':
+
+        form = WorkerForm(cities=cities)
+        ut = 2
+    else:
+        return redirect("/")
 
     if form.validate_on_submit():
 
+        # Create profile image file name
+        filename = ""
+        if form.profile.data:
+            profile = form.profile.data
+            file_ext = os.path.splitext(profile.filename)[1]
+            filename = str(uuid.uuid4().hex) + file_ext
+
+            # Validate Profile Picture
+            if not Validate_Image(filename):
+                form.profile.errors.append(
+                    "Invalid file extension ('.jpg', '.png', '.gif'")
+                return render_template("/users/registration.html", form=form, user_type=user_type)
+
         # Instantiate user class
-        user = Validate(form)
-        # Veify password format
+        user = Validate(form, ut, filename)
+
+        # Verify password format
         if not user.valid_password():
             form.password.errors.append(
                 "Password must be at least 8 characters with numbers, special characters, lowercase and uppercase!")
-            return render_template("registration.html", form=form)
+            return render_template("/users/registration.html", form=form, user_type=user_type)
+
         # Verify User Email
         if not user.valid_email():
-            form.first_name.errors.append(
+            form.email.errors.append(
                 "Please enter a valid email address!")
-            return render_template("registration.html", form=form)
-        sess = user.register_user()
+            return render_template("/users/registration.html", form=form, user_type=user_type)
+
+        # Create user session
+        if user_type == "worker":
+            facebook = form.facebook.data
+            mobile = form.mobile.data
+        else:
+            facebook = ""
+            mobile = ""
+
+        sess = user.register_user(facebook, mobile)
         user.Add_User_Type(sess.id)
-        session['user_id'] = sess.id
-        session['email'] = sess.email
-        session['name'] = sess.first_name
+
+        if user_type == "worker":
+            user.Add_Services(sess.id, form.carpenter.data, form.painter.data,
+                              form.plumber.data, form.electrician.data)
+
+        # Upload profile picture
+        if filename:
+            profile.save(os.path.join("static/images/profiles/") + filename)
+
+        # Create user session
+        login_user(sess)
+
+        # Send email verification to user
+        # sendMail = Email(session['email'])
+        # sendMail.VerifyMail()
         return redirect("/")
-    return render_template("registration.html", form=form)
+    return render_template("/users/registration.html", form=form, user_type=user_type)
+
+
+@ app.route("/user/<int:id>/edit", methods=["GET", "POST"])
+def edit_user(id):
+    """Handles editing of user"""
+    user = User.query.get_or_404(id)
+    return render_template("edit_profile.html", user=user)
