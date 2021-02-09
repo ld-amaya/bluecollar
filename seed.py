@@ -2,7 +2,7 @@
 from csv import DictReader
 
 from app import app
-from models import db, connect_db, User, City, Barangay, Service, User_Service, Type, User_Type, Job, User_Job, Comment, Rating, Message
+from models import db, connect_db, User, City, Service, User_Service, Type, User_Type, Job, User_Job, Comment, Message
 
 # Create user services
 service1 = Service(
@@ -42,9 +42,6 @@ db.session.commit()
 
 with open('generator/city.csv') as city:
     db.session.bulk_insert_mappings(City, DictReader(city))
-
-with open('generator/bar.csv') as city:
-    db.session.bulk_insert_mappings(Barangay, DictReader(city))
 
 with open('generator/users.csv') as user:
     db.session.bulk_insert_mappings(User, DictReader(user))
@@ -90,31 +87,41 @@ db.session.commit()
 
 
 comment1 = Comment(
-    comment="Amazing job!!!",
+    title="Great job",
+    comment="You did a great job...",
+    rating=5,
     user_from_id=1,
     user_to_id=2
 )
 
 comment2 = Comment(
+    title="Door of heaven",
     comment="Door was sturdy and nicely done!",
+    rating=5,
     user_from_id=1,
     user_to_id=5
 )
 
 comment3 = Comment(
+    title="Made of Mahogany",
     comment="Yes, it is sturdy, door is made of mahogany",
+    rating=2,
     user_from_id=5,
     user_to_id=5
 )
 
 comment4 = Comment(
+    title="Price is right",
     comment="How much for the door?",
+    rating=3,
     user_from_id=3,
     user_to_id=5
 )
 
 comment5 = Comment(
+    title="Cabinets are in too?",
     comment="Do you do cabinets also?",
+    rating=4,
     user_from_id=4,
     user_to_id=5
 )
@@ -125,22 +132,6 @@ db.session.add(comment2)
 db.session.add(comment3)
 db.session.add(comment4)
 db.session.add(comment5)
-db.session.commit()
-
-rating1 = Rating(
-    rating=4,
-    user_from=1,
-    user_to=4
-)
-
-rating2 = Rating(
-    rating=5,
-    user_from=1,
-    user_to=5
-)
-
-db.session.add(rating1)
-db.session.add(rating2)
 db.session.commit()
 
 message1 = Message(
