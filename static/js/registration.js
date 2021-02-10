@@ -12,3 +12,4 @@ async function verifyEmail(email) {
 $('#email').change(() => {
     verifyEmail($('#email').val())
 })
+
