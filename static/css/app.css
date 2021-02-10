@@ -36,10 +36,20 @@
     font-size: 0.3em;
 }
 
-#signup, a, #login{
+#signup,
+a,
+#login,
+#session,
+#sesssionHeader {
     color: white
 }
 
 #logo{
     width: 80%;
+}
+#rate1, #rate2, #rate3, #rate4,#rate5:hover{
+    cursor:pointer;
+}
+.rate{
+    font-size: 1.2rem;
 }
