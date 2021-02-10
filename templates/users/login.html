@@ -7,8 +7,8 @@
         <div class="col-md-6">
             <form action="/login" method= "POST">
                 {% include "_flash.html" %}
-                {{form.hidden_tag()}}
-                {% for field in form if field.widget.input_type!='hidden' %}
+                {{login_form.hidden_tag()}}
+                {% for field in login_form if field.widget.input_type!='hidden' %}
                     {{field.label}}
                     {{field(class_='form-control')}}
                 {% endfor %}
@@ -20,3 +20,5 @@
         </div>
     </div>
 {% endblock %}
+
+{% include "_modal_registration.html" %}
