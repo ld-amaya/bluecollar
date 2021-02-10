@@ -1,0 +1,46 @@
+<section class="user_select_modal">
+        <!-- Modal -->
+        <div class="modal fade" id="usermodal" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="staticBackdropLabel">Select One</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <form action="">
+                        <div class="modal-body text-center">
+                            <a href="/registration/worker" class="btn btn-primary mr-2">Blue Collar</a>
+                            <a href="/registration/user" class ="btn btn-success">Regular User</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="email_taken_modal">
+        <!-- Modal -->
+        <div class="modal fade" id="emailtakenmodal" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="staticBackdropLabel">Email Alert</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <form action="">
+                        <div class="modal-body text-center text-danger">
+                            The email address is already registered in our system. Click login below or close to continue
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <a href="/login" class="btn btn-primary">Login</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
