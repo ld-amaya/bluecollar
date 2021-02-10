@@ -1,6 +1,6 @@
 from models import db, User
 from wtforms.validators import InputRequired, Email, Length
-from wtforms import StringField, PasswordField, SelectField, IntegerField, FileField, SubmitField, BooleanField
+from wtforms import StringField, PasswordField, SelectField, IntegerField, FileField, SubmitField, BooleanField, TextAreaField
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired
 from werkzeug.utils import secure_filename
@@ -12,6 +12,12 @@ class LoginForm(FlaskForm):
         InputRequired(), Email(), Length(min=1, max=50)])
     password = PasswordField('Password', validators=[
         InputRequired(), Length(min=8, max=100)])
+
+
+class CommentForm(FlaskForm):
+    """Defines Comment Form"""
+    title = StringField('Title', validators=[InputRequired()])
+    comment = TextAreaField('Details', validators=[InputRequired()])
 
 
 class RegistrationForm(FlaskForm):
