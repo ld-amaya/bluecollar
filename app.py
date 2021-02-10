@@ -5,7 +5,7 @@ import uuid
 from flask import Flask, request, render_template, jsonify, flash, session, redirect
 from flask_debugtoolbar import DebugToolbarExtension
 from models import db, connect_db, User, City, Service, User_Service, Type, User_Type, Job, User_Job, Comment, Message
-from forms import RegistrationForm, WorkerForm, LoginForm
+from forms import RegistrationForm, WorkerForm, LoginForm, CommentForm
 from validation import Validate
 from mail import Email
 
@@ -73,7 +73,8 @@ def homepage():
     electricians = User.query.filter(
         User.id.in_(electrician_id)).limit(4).all()
 
-    return render_template("index.html", carpenters=carpenters, painters=painters, plumbers=plumbers, electricians=electricians)
+    login_form = LoginForm()
+    return render_template("index.html", carpenters=carpenters, painters=painters, plumbers=plumbers, electricians=electricians, login_form=login_form)
 
 ###### GET ROUTES ###########################################
 
@@ -83,13 +84,16 @@ def worker_details(id):
     """Handles worker details"""
 
     user = User.query.get_or_404(id)
+    login_form = LoginForm()
+    comment_form = CommentForm()
     # comment_id = [f.comment_id for f in comments if f.user_to == id]
-    comments = Comment.query.filter(Comment.user_to_id == id).all()
+    comments = Comment.query.filter(Comment.user_to_id == id).order_by(
+        Comment.timestamp.desc()).all()
     ave = 0
     rate = [c.rating for c in comments]
     if rate:
         ave = sum(rate) / len(rate)
-    return render_template("/users/worker.html", user=user, comments=comments, ave=round(ave))
+    return render_template("/users/worker.html", user=user, comments=comments, ave=round(ave), login_form=login_form, comment_form=comment_form)
 
 ###### API REQUESTS ROUTES ###########################################
 
@@ -101,27 +105,45 @@ def check_email_if_existing(email):
             for e in User.query.filter(User.email == email).all()]
     return jsonify(data)
 
+
 ###### POST ROUTES ###########################################
+
+@app.route("/comment/<int:id>", methods=["POST"])
+def add_comments(id):
+    """Handles saving of comments and rating"""
+    form = CommentForm()
+    rating = request.form['rating']
+    if form.validate_on_submit():
+        comment = Comment(
+            title=form.title.data,
+            comment=form.comment.data,
+            rating=rating,
+            user_from_id=session['uid'],
+            user_to_id=id
+        )
+        db.session.add(comment)
+        db.session.commit()
+    return redirect(f"/worker/{id}")
 
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
     """Handles User Login"""
 
-    form = LoginForm()
-    if form.validate_on_submit():
-        user = User.login(form.email.data, form.password.data)
+    login_form = LoginForm()
+    if login_form.validate_on_submit():
+        user = User.login(login_form.email.data, login_form.password.data)
         if user:
             login_user(user)
-            return redirect("/")
-    return render_template("/users/login.html", form=form)
+            return redirect(request.referrer)
+    return render_template("/users/login.html", login_form=login_form)
 
 
 @app.route("/logout")
 def logout():
     """Handles User Logout"""
     logout_user()
-    return redirect("/")
+    return redirect(request.referrer)
 
 
 @ app.route("/registration/<user_type>", methods=['GET', 'POST'])
@@ -132,7 +154,6 @@ def register(user_type):
         form = RegistrationForm(cities=cities)
         ut = 1
     elif user_type == 'worker':
-
         form = WorkerForm(cities=cities)
         ut = 2
     else:
@@ -194,6 +215,7 @@ def register(user_type):
         # sendMail = Email(session['email'])
         # sendMail.VerifyMail()
         return redirect("/")
+
     return render_template("/users/registration.html", form=form, user_type=user_type)
 
 
