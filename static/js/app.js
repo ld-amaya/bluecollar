@@ -1,4 +1,7 @@
 $(document).ready(function () {
+    $('#login').click(() => {
+        $('#loginmodal').modal('show')
+    })
     $('#register').click(() => {
         $('#usermodal').modal('show')
     });
@@ -7,4 +10,13 @@ $(document).ready(function () {
         $('#usermodal').modal('show')
     });
 
+    $('#sendMessage').click(() => {
+        if ($('#session').length) {
+            console.log("You are in session")
+        } else {
+            console.log("You are NOT in session")
+        }
+    })
+
+    
 });
