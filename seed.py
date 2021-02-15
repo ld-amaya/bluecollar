@@ -4,6 +4,23 @@ from csv import DictReader
 from app import app
 from models import db, connect_db, User, City, Service, User_Service, Type, User_Type, Job, User_Job, Comment, Message
 
+# Create Types of User
+client = Type(
+    name='client'
+)
+bluecollar = Type(
+    name='bluecollar'
+)
+admin = Type(
+    name='admin'
+)
+
+db.session.add(client)
+db.session.add(bluecollar)
+db.session.add(admin)
+db.session.commit()
+
+
 # Create user services
 service1 = Service(
     name='Carpenter'
@@ -21,22 +38,6 @@ db.session.add(service1)
 db.session.add(service2)
 db.session.add(service3)
 db.session.add(service4)
-db.session.commit()
-
-# Create Types of User
-client = Type(
-    name='client'
-)
-bluecollar = Type(
-    name='bluecollar'
-)
-admin = Type(
-    name='admin'
-)
-
-db.session.add(client)
-db.session.add(bluecollar)
-db.session.add(admin)
 db.session.commit()
 
 
