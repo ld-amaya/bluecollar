@@ -52,7 +52,11 @@
                 <div class="col-md-3 my-3">
                     <div class="card">
                         <a href="/worker/{{electrician.id}}">
-                            <img src="/static/images/profiles/{{electrician.profile}}" class ="card-img-top" alt="default image">
+                            {% if electrician.profile %}
+                                <img src="/static/images/profiles/{{electrician.profile}}" class ="card-img-top" alt="default image">
+                            {% else %}
+                                <img src="/static/images/profiles/default-icon.png" class ="card-img-top" alt="default image">
+                            {% endif %}
                         </a>
                         <div class="card-body">
                             <h6>{{electrician.first_name}} {{electrician.last_name}} </h6>
@@ -70,7 +74,11 @@
                 <div class="col-md-3 my-3">
                     <div class="card">
                         <a href="/worker/{{plumber.id}}">
-                            <img src="/static/images/profiles/{{plumber.profile}}" class ="card-img-top" alt="default image">
+                            {% if plumber.profile %}
+                                <img src="/static/images/profiles/{{plumber.profile}}" class ="card-img-top" alt="default image">
+                            {% else %}
+                                <img src="/static/images/profiles/default-icon.png" class ="card-img-top" alt="default image">
+                            {% endif %}
                         </a>    
                         <div class="card-body">
                             <h5>{{plumber.first_name}} {{plumber.last_name}} </h5>
@@ -83,4 +91,5 @@
             {% endfor %}
         </div>
 {% endblock %}
-{% include "_modal_login.html" %}
+{% include "/modals/_modal_login.html" %}
+{% include "/modals/_modal_registration.html" %}

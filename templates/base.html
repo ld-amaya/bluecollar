@@ -33,7 +33,10 @@
             <login class="form-inline my-2 my-lg-0">
                 {% if session['uid'] %}
                     <span  class ="mr-3" id="sesssionHeader">Hi, <span id="session">{{ session['name']}}</span></span>
-                    <a href="/logout"class ="btn btn-outline-primary btn-sm mr-1" id = "login"> Logout </a>
+                    <i class="far fa-bell mx-1 menu"></i>
+                    <a href="/messages" class="mx-1"> <i class="far fa-envelope menu"></i></a>
+                    <a href="/profile" class ="mx-1"><i class="far fa-user-circle menu"></i></a> 
+                    <a href="/logout"class ="mx-1" id = "logout"> <i class="fas fa-sign-out-alt menu"></i> </a>
                 {% else %}
                     {% if user_type %}
                         <a href="/login"class ="btn btn-outline-primary btn-sm mr-1" id = "login"> Login </a>
@@ -57,6 +60,8 @@
     <script src = 'https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js'></script>
     <!-- axios cdn  -->
     <script src="https://unpkg.com/axios/dist/axios.js"></script>
+    <!-- lodash cdn  -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.20/lodash.min.js" integrity="sha512-90vH1Z83AJY9DmlWa8WkjkV79yfS2n2Oxhsi2dZbIv0nC4E6m5AbH8Nh156kkM7JePmqD6tcZsfad1ueoaovww==" crossorigin="anonymous"></script>
     <script src="/static/js/app.js"></script>
 
     {% block scripts %} 
