@@ -1,0 +1,32 @@
+<section class="login_modal">
+    <!-- Modal -->
+    <div class="modal fade" id="messagemodal" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">Send Message to {{user.first_name}}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form action="/message/add/{{user.id}}" method = "POST">
+                    <div class="modal-body">
+                        {% include "_flash.html" %}
+                        {{message_form.hidden_tag()}}
+                        {% for field in message_form if field.widget.input_type!='hidden' %}
+                            {{field.label}}
+                            {{field(class_='form-control')}}
+                        {% endfor %}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type ="submit" class ="btn btn-primary">Send</button>
+                    </div>
+                    <div class ="text-center mt-2 mb-5 text-danger">
+                        Don't have an account?  <a href ='#' class ='text-primary' id ="createUser"> Create one </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section> 

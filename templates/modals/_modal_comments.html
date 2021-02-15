@@ -1,0 +1,46 @@
+<section class="login_modal">
+    <!-- Modal -->
+    <div class="modal fade" id="commentmodal" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">Comment and Rating</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form action="/comment/{{user.id}}" method = "POST">
+                    <div class = "text-center">
+                        <span id ="loginTitle">
+                            {{loginTitle}}
+                        </span>
+                    </div>
+                    <div class="modal-body">
+                        <div class = "mb-2"> Rating 
+                                    <i class="far fa-star rate" id='rate1' data-rate=1 data-label='Awful'></i>
+                                    <i class="far fa-star rate" id='rate2' data-rate=2 data-label='Poor'></i>
+                                    <i class="far fa-star rate" id='rate3' data-rate=3 data-label='Fair'></i>
+                                    <i class="far fa-star rate" id='rate4' data-rate=4 data-label='Good'></i>
+                                    <i class="far fa-star rate" id='rate5' data-rate=5 data-label='Excellent'></i>
+                                    <span id ="yourRate"></span>
+                                    <input type="hidden" class='rating' name='rating' id='rating' value=0>
+                        </div>
+                        {% include "_flash.html" %}
+                        {{comment_form.hidden_tag()}}
+                        {% for field in comment_form if field.widget.input_type!='hidden' %}
+                            {{field.label}}
+                            {{field(class_='form-control')}}
+                        {% endfor %}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type ="submit" class ="btn btn-primary">Submit</button>
+                    </div>
+                    <div class ="text-center mt-2 mb-5 text-danger">
+                        Don't have an account?  <a href ='#' class ='text-primary' id ="createUser"> Create one </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section> 
