@@ -1,5 +1,5 @@
 from models import db, User
-from wtforms.validators import InputRequired, Email, Length
+from wtforms.validators import InputRequired, Email, Length, Optional
 from wtforms import StringField, PasswordField, SelectField, IntegerField, FileField, SubmitField, BooleanField, TextAreaField
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired
@@ -18,6 +18,11 @@ class CommentForm(FlaskForm):
     """Defines Comment Form"""
     title = StringField('Title', validators=[InputRequired()])
     comment = TextAreaField('Details', validators=[InputRequired()])
+
+
+class MessageForm(FlaskForm):
+    """Defines Message Form"""
+    message = TextAreaField("Your Message", validators=[InputRequired()])
 
 
 class RegistrationForm(FlaskForm):
@@ -55,7 +60,7 @@ class WorkerForm(FlaskForm):
     password = PasswordField('Password', validators=[
         InputRequired(), Length(min=8, max=100)])
     facebook = StringField('Facebook Link')
-    mobile = IntegerField('Mobile Number')
+    mobile = IntegerField('Mobile Number', validators=[Optional()])
     city = SelectField(u'Select City (Cebu Province Only)',
                        choices=[],
                        coerce=int)
