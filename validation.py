@@ -20,7 +20,6 @@ class Validate():
         self.email = form.email.data
         self.password = form.password.data
         self.city_id = form.city.data
-
         self.user_type = user_type
         self.profile = filename
 
