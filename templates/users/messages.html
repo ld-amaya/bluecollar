@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+<link rel="stylesheet" href="/static/css/messages.css">
+{% block title %} User Messages {% endblock %}
+{% block content %} 
+    <div class="row">
+        <div class="col-md-3">
+            <h5 class ="text-success pt-2">Conversations</h5>
+            <hr>
+                {% for chatmate in chatmates%}
+                    <a href="#" class="text-primary chat" id = "{{chatmate.id}}"> 
+                        <img src="/static/images/profiles/{{chatmate.profile}}" class ="message_profile mr-3">
+                        {{chatmate.first_name}} {{chatmate.last_name}}
+                    </a>
+                    <hr>
+                {% endfor %}
+        </div>
+        <div class="col-md-9 mb-2">
+            <div>
+                <h5 class ="text-success pt-2" id ="chat_header">Select Sender <span id='sender'></span></h5>
+                <form action="">
+                    <div class="overflow-auto" id="chat_container">
+
+                    </div>
+                    <textarea class ="form-control" id='text'> </textarea>
+                    <div class="text-right">
+                        <button type="button" class ="btn btn-primary btn-md mt-2" id="send">Send</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block scripts %}
+    <script src="/static/js/messages.js"></script>
+    <script src="/static/js/moment.js"></script>
+{% endblock %}

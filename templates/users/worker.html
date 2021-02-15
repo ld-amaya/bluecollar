@@ -100,12 +100,14 @@
     </div>
 {% endblock %}
 {% if session['uid'] %}
-    {% include "_modal_comments.html" %}
+    {% include "/modals/_modal_comments.html" %}
+    {% include "/modals/_modal_messages.html" %}
 {% else %}
-    {% include "_modal_login.html" %}
-    {% include "_modal_registration.html" %}
+    {% include "/modals/_modal_login.html" %}
+    {% include "/modals/_modal_registration.html" %}
 {% endif %}
 
 {% block scripts %} 
     <script src ="/static/js/comments.js"></script>
+    <script src ="/static/js/messages.js"></script>
 {% endblock %}
