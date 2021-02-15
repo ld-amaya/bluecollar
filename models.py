@@ -145,6 +145,41 @@ class Message (db.Model):
         nullable=False,
         default=datetime.utcnow(),
     )
+    is_read = db.Column(
+        db.Boolean,
+        default=False
+    )
+    user_from = db.relationship(
+        "User", foreign_keys=[message_from], backref="messages")
+    user_to = db.relationship("User", foreign_keys=[message_to])
+
+    def serialized_messages(self, uid):
+        """Return serialized messages"""
+        if uid == self.message_from:
+            uid = self.message_to
+            sender = self.user_to.first_name
+        else:
+            uid = self.message_from
+            sender = self.user_from.first_name
+        return {
+            'id': self.id,
+            'uid': uid,
+            'message': self.message,
+            'sender': sender,
+            'from': self.user_from.first_name,
+            'to': self.user_to.first_name,
+            'timestamp': self.timestamp
+        }
+
+    def serialized_sender(self):
+        """Return serialized senders"""
+        sender = self.user_from.first_name + " " + self.user_from.last_name
+        return{
+            'id': self.id,
+            'sender_id': self.message_from,
+            'sender': sender,
+            'profile': self.user_from.profile
+        }
 
 
 class User(db.Model):
@@ -181,18 +216,13 @@ class User(db.Model):
                                  primaryjoin=(Comment.user_from_id == id),
                                  secondaryjoin=(Comment.user_to_id == id))
 
-    message = db.relationship("User",
-                              secondary="messages",
-                              primaryjoin=(Message.message_from == id),
-                              secondaryjoin=(Message.message_to == id))
-
     def serialized_email(self):
         """Return serialized email"""
         return{
             "email": self.email
         }
 
-    @classmethod
+    @ classmethod
     def login(cls, email, password):
         """Authenticates user"""
 
