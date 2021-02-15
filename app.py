@@ -5,10 +5,10 @@ import uuid
 from flask import Flask, request, render_template, jsonify, flash, session, redirect
 from flask_debugtoolbar import DebugToolbarExtension
 from models import db, connect_db, User, City, Service, User_Service, Type, User_Type, Job, User_Job, Comment, Message
-from forms import RegistrationForm, WorkerForm, LoginForm, CommentForm
+from forms import RegistrationForm, WorkerForm, LoginForm, CommentForm, MessageForm
 from validation import Validate
 from mail import Email
-
+from datetime import datetime
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'iamlou'
@@ -86,6 +86,7 @@ def worker_details(id):
     user = User.query.get_or_404(id)
     login_form = LoginForm()
     comment_form = CommentForm()
+    message_form = MessageForm()
     # comment_id = [f.comment_id for f in comments if f.user_to == id]
     comments = Comment.query.filter(Comment.user_to_id == id).order_by(
         Comment.timestamp.desc()).all()
@@ -93,22 +94,63 @@ def worker_details(id):
     rate = [c.rating for c in comments]
     if rate:
         ave = sum(rate) / len(rate)
-    return render_template("/users/worker.html", user=user, comments=comments, ave=round(ave), login_form=login_form, comment_form=comment_form)
+    return render_template("/users/worker.html",
+                           user=user,
+                           comments=comments,
+                           ave=round(ave),
+                           login_form=login_form,
+                           comment_form=comment_form,
+                           message_form=message_form)
 
-###### API REQUESTS ROUTES ###########################################
 
+@app.route("/messages")
+def display_message():
+    """Handles dispaly of all messages"""
 
-@ app.route("/email/<email>", methods=["POST"])
-def check_email_if_existing(email):
-    """Handles return of services list"""
-    data = [e.serialized_email()
-            for e in User.query.filter(User.email == email).all()]
-    return jsonify(data)
+    # Redirect user to homepage if not logged in
+    if not 'uid' in session:
+        return redirect("/")
 
+    # Get the unique id of from and to
+    chatmates = (Message.query
+                 .filter((Message.message_from == session['uid']) | (Message.message_to == session['uid']))
+                 .all()
+                 )
+    # Get the chatids
+    chatids = []
+    for c in chatmates:
+        if not c.message_from == session['uid'] and c.message_from not in chatids:
+            chatids.append(c.message_from)
+        elif not c.message_to == session['uid'] and c.message_to not in chatids:
+            chatids.append(c.message_to)
+    chatmates = User.query.filter(User.id.in_(chatids)).all()
+    return render_template("/users/messages.html", chatmates=chatmates)
 
 ###### POST ROUTES ###########################################
 
-@app.route("/comment/<int:id>", methods=["POST"])
+
+@ app.route("/message/add/<int:id>", methods=["POST"])
+def send_message(id):
+    """Handles adding message"""
+
+    # Redirect user to homepage if not logged in
+    if not 'uid' in session:
+        return redirect("/")
+
+    form = MessageForm()
+    if form.validate_on_submit():
+        message = Message(
+            message=form.message.data,
+            message_from=session['uid'],
+            message_to=id,
+            timestamp=datetime.utcnow()
+        )
+        db.session.add(message)
+        db.session.commit()
+    return redirect(f"/worker/{id}")
+
+
+@ app.route("/comment/<int:id>", methods=["POST"])
 def add_comments(id):
     """Handles saving of comments and rating"""
     form = CommentForm()
@@ -124,26 +166,6 @@ def add_comments(id):
         db.session.add(comment)
         db.session.commit()
     return redirect(f"/worker/{id}")
-
-
-@app.route("/login", methods=["GET", "POST"])
-def login():
-    """Handles User Login"""
-
-    login_form = LoginForm()
-    if login_form.validate_on_submit():
-        user = User.login(login_form.email.data, login_form.password.data)
-        if user:
-            login_user(user)
-            return redirect(request.referrer)
-    return render_template("/users/login.html", login_form=login_form)
-
-
-@app.route("/logout")
-def logout():
-    """Handles User Logout"""
-    logout_user()
-    return redirect(request.referrer)
 
 
 @ app.route("/registration/<user_type>", methods=['GET', 'POST'])
@@ -224,3 +246,95 @@ def edit_user(id):
     """Handles editing of user"""
     user = User.query.get_or_404(id)
     return render_template("edit_profile.html", user=user)
+
+
+@ app.route("/login", methods=["GET", "POST"])
+def login():
+    """Handles User Login"""
+
+    login_form = LoginForm()
+    if login_form.validate_on_submit():
+        user = User.login(login_form.email.data, login_form.password.data)
+        if user:
+            login_user(user)
+            # Check if user came from login.html then redirect to homepage
+            if 'login' in request.referrer:
+                return redirect("/")
+            return redirect(request.referrer)
+    return render_template("/users/login.html", login_form=login_form)
+
+
+@ app.route("/logout")
+def logout():
+    """Handles User Logout"""
+    logout_user()
+    return redirect(request.referrer)
+
+
+###### API REQUESTS ROUTES ###########################################
+
+
+@ app.route("/email/<email>", methods=["POST"])
+def check_email_if_existing(email):
+    """Handles return of services list"""
+    data = [e.serialized_email()
+            for e in User.query.filter(User.email == email).all()]
+    return jsonify(data)
+
+
+@ app.route("/messages/retrieve/<int:id>", methods=["POST"])
+def retrieve_messages(id):
+    """Handles retrieval of message from for user"""
+
+    all_messages = (Message.query
+                    .filter(((Message.message_from == session['uid']) & (Message.message_to == id)) |
+                            ((Message.message_from == id) & (Message.message_to == session['uid'])))
+                    .order_by(Message.timestamp.desc())
+                    .all())
+    for m in all_messages:
+        if not m.message_from == session['uid']:
+            m.is_read = True
+            db.session.add(m)
+            db.session.commit()
+    messages = [m.serialized_messages(session['uid']) for m in all_messages]
+
+    return jsonify(messages)
+
+
+@app.route("/messages/send", methods=["POST"])
+def send_new_message():
+    """Handles sending of new messages via axios"""
+
+    data = request.json
+    new_message = Message(
+        message=data['text'],
+        message_from=session['uid'],
+        message_to=data['id'],
+        timestamp=datetime.utcnow()
+    )
+    db.session.add(new_message)
+    db.session.commit()
+
+    # return new data
+    all_messages = (Message.query
+                    .filter(((Message.message_from == session['uid']) & (Message.message_to == data['id'])) |
+                            ((Message.message_from == data['id']) & (Message.message_to == session['uid'])))
+                    .order_by(Message.timestamp.desc())
+                    .all())
+    messages = [m.serialized_messages(session['uid']) for m in all_messages]
+    return jsonify(messages)
+
+
+@app.route("/checkunread/<int:id>", methods=["POST"])
+def check_unread_messages(id):
+    """Check for unread messages"""
+    all_messages = (Message.query
+                    .filter(((Message.message_from == session['uid']) & (Message.message_to == id)) |
+                            ((Message.message_from == id) & (Message.message_to == session['uid'])))
+                    .order_by(Message.timestamp.desc())
+                    .all())
+    read = True
+    for m in all_messages:
+        if not m.is_read and not m.message_from == session['uid']:
+            read = False
+    return ({'read': read})
