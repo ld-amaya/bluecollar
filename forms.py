@@ -25,6 +25,16 @@ class MessageForm(FlaskForm):
     message = TextAreaField("Your Message", validators=[InputRequired()])
 
 
+class PasswordForm(FlaskForm):
+    """Defines the Password Form"""
+    password = PasswordField('Existing Password', validators=[
+        InputRequired(), Length(min=8, max=100)])
+    new_password = PasswordField('New Password', validators=[
+        InputRequired(), Length(min=8, max=100)])
+    confirm_password = PasswordField('Confirm Password', validators=[
+        InputRequired(), Length(min=8, max=100)])
+
+
 class RegistrationForm(FlaskForm):
     """Defines form to be used in registration"""
 
@@ -73,3 +83,41 @@ class WorkerForm(FlaskForm):
         super().__init__()
         if cities:
             self.city.choices = [(c.id, c.name) for c in cities]
+
+
+class ProfileForm(FlaskForm):
+    """Defines the profile form"""
+
+    first_name = StringField('First Name', validators=[
+        InputRequired(), Length(min=1, max=50)])
+    last_name = StringField('Last Name', validators=[
+        InputRequired(), Length(min=1, max=50)])
+    email = StringField('Email', validators=[
+        InputRequired(), Email(), Length(min=1, max=50)])
+    facebook = StringField('Facebook Link')
+    mobile = IntegerField('Mobile Number', validators=[Optional()])
+
+
+class JobForm(FlaskForm):
+    """Defines the job type forms"""
+    carpenter = BooleanField('Carpenter')
+    painter = BooleanField('Painter')
+    electrician = BooleanField('Electrician')
+    plumber = BooleanField('Plumber')
+
+
+class CityForm(FlaskForm):
+    """Defines the city forms"""
+    city = SelectField(u'Select City (Cebu Province Only)',
+                       choices=[],
+                       coerce=int)
+
+    def __init__(self, cities=None):
+        super().__init__()
+        if cities:
+            self.city.choices = [(c.id, c.name) for c in cities]
+
+
+class ImageForm(FlaskForm):
+    """Defines the profile image form"""
+    profile = FileField('Profile Picture')
