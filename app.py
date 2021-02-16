@@ -6,7 +6,7 @@ from flask import Flask, request, render_template, jsonify, flash, session, redi
 from flask_debugtoolbar import DebugToolbarExtension
 from models import db, connect_db, User, City, Service, User_Service, Type, User_Type, Job, User_Job, Comment, Message
 from forms import RegistrationForm, WorkerForm, LoginForm, CommentForm, MessageForm, PasswordForm, ProfileForm, JobForm, CityForm
-from validation import Validate, Password, ServiceType
+from registration import Registration, Password, ServiceType
 from mail import Email
 from datetime import datetime
 
@@ -110,7 +110,7 @@ def display_message():
     """Handles display of all messages"""
 
     # Redirect user to homepage if not logged in
-    if not 'uid' in session:
+    if 'uid' not in session:
         return redirect("/")
 
     # Get the unique id of from and to
@@ -118,6 +118,11 @@ def display_message():
                  .filter((Message.message_from == session['uid']) | (Message.message_to == session['uid']))
                  .all()
                  )
+
+    # Things to consider
+    # 1. Limit messages
+    # 2. Create a chatmate table for easier query
+
     # Get the chatids
     chatids = []
     for c in chatmates:
@@ -142,7 +147,7 @@ def send_message(id):
     """Handles adding message"""
 
     # Redirect user to homepage if not logged in
-    if not 'uid' in session:
+    if 'uid' not in session:
         return redirect("/")
 
     form = MessageForm()
@@ -161,6 +166,10 @@ def send_message(id):
 @ app.route("/comment/<int:id>", methods=["POST"])
 def add_comments(id):
     """Handles saving of comments and rating"""
+
+    if 'uid' not in session:
+        return redirect("/")
+
     form = CommentForm()
     rating = request.form['rating']
     if form.validate_on_submit():
@@ -182,9 +191,13 @@ def register(user_type):
     cities = City.query.all()
     if user_type == 'user':
         form = RegistrationForm(cities=cities)
+        facebook = ""
+        mobile = ""
         ut = 1
     elif user_type == 'worker':
         form = WorkerForm(cities=cities)
+        facebook = form.facebook.data
+        mobile = form.mobile.data
         ut = 2
     else:
         return redirect("/")
@@ -192,7 +205,7 @@ def register(user_type):
     if form.validate_on_submit():
 
         # Create profile image file name
-        filename = ""
+        filename = "default-icon.png"
         if form.profile.data:
             profile = form.profile.data
             file_ext = os.path.splitext(profile.filename)[1]
@@ -220,13 +233,6 @@ def register(user_type):
             return render_template("/users/registration.html", form=form, user_type=user_type)
 
         # Create user session
-        if user_type == "worker":
-            facebook = form.facebook.data
-            mobile = form.mobile.data
-        else:
-            facebook = ""
-            mobile = ""
-
         sess = user.register_user(facebook, mobile)
         user.Add_User_Type(sess.id)
 
@@ -252,6 +258,9 @@ def register(user_type):
 @ app.route("/profile/edit", methods=["GET", "POST"])
 def edit_user():
     """Handles editing of user"""
+
+    if 'uid' not in session:
+        return redirect("/")
     cities = City.query.all()
     user = User.query.get_or_404(session['uid'])
     form = ProfileForm(obj=user)
@@ -285,6 +294,9 @@ def edit_user():
 @app.route("/password/edit", methods=["GET", "POST"])
 def password_edit():
     """Handles changing of password"""
+
+    if 'uid' not in session:
+        return redirect("/")
     form = PasswordForm()
     if form.validate_on_submit():
 
@@ -336,6 +348,8 @@ def login():
 @ app.route("/logout")
 def logout():
     """Handles User Logout"""
+    if 'uid' not in session:
+        return redirect("/")
     logout_user()
     return redirect(request.referrer)
 
@@ -343,18 +357,11 @@ def logout():
 ###### API REQUESTS ROUTES ###########################################
 
 
-@ app.route("/email/<email>", methods=["POST"])
-def check_email_if_existing(email):
-    """Handles return of services list"""
-    data = [e.serialized_email()
-            for e in User.query.filter(User.email == email).all()]
-    return jsonify(data)
-
-
-@ app.route("/messages/retrieve/<int:id>", methods=["POST"])
+@ app.route("/messages/retrieve/<int:id>")
 def retrieve_messages(id):
     """Handles retrieval of message from for user"""
-
+    if 'uid' not in session:
+        return redirect("/")
     all_messages = (Message.query
                     .filter(((Message.message_from == session['uid']) & (Message.message_to == id)) |
                             ((Message.message_from == id) & (Message.message_to == session['uid'])))
@@ -370,10 +377,51 @@ def retrieve_messages(id):
     return jsonify(messages)
 
 
+@app.route("/checkunread/<int:id>")
+def check_unread_messages(id):
+    """Check for unread messages"""
+
+    if 'uid' not in session:
+        return redirect("/")
+    all_messages = (Message.query
+                    .filter(((Message.message_from == session['uid']) & (Message.message_to == id)) |
+                            ((Message.message_from == id) & (Message.message_to == session['uid'])))
+                    .order_by(Message.timestamp.desc())
+                    .all())
+    read = True
+    for m in all_messages:
+        if not m.is_read and not m.message_from == session['uid']:
+            read = False
+    return ({'read': read})
+
+
+@app.route("/cities")
+def return_cities():
+    """Handles City List API Request"""
+
+    cities = [c.serialized_city() for c in City.query.all()]
+    user = User.query.get_or_404(session['uid'])
+    services = [s.name for s in user.service]
+    return jsonify(user={'id': user.city.id, 'city': user.city.name}, cities=cities, services=services)
+
+
+@ app.route("/email/<email>", methods=["POST"])
+def check_email_if_existing(email):
+    """Handles return of services list"""
+
+    if 'uid' not in session:
+        return redirect("/")
+    data = [e.serialized_email()
+            for e in User.query.filter(User.email == email).all()]
+    return jsonify(data)
+
+
 @app.route("/messages/send", methods=["POST"])
 def send_new_message():
     """Handles sending of new messages via axios"""
 
+    if 'uid' not in session:
+        return redirect("/")
     data = request.json
     new_message = Message(
         message=data['text'],
@@ -392,27 +440,3 @@ def send_new_message():
                     .all())
     messages = [m.serialized_messages(session['uid']) for m in all_messages]
     return jsonify(messages)
-
-
-@app.route("/checkunread/<int:id>", methods=["POST"])
-def check_unread_messages(id):
-    """Check for unread messages"""
-    all_messages = (Message.query
-                    .filter(((Message.message_from == session['uid']) & (Message.message_to == id)) |
-                            ((Message.message_from == id) & (Message.message_to == session['uid'])))
-                    .order_by(Message.timestamp.desc())
-                    .all())
-    read = True
-    for m in all_messages:
-        if not m.is_read and not m.message_from == session['uid']:
-            read = False
-    return ({'read': read})
-
-
-@app.route("/cities", methods=["POST"])
-def return_cities():
-    """Handles City List API Request"""
-    cities = [c.serialized_city() for c in City.query.all()]
-    user = User.query.get_or_404(session['uid'])
-    services = [s.name for s in user.service]
-    return jsonify(user={'id': user.city.id, 'city': user.city.name}, cities=cities, services=services)
