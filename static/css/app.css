@@ -1,6 +1,5 @@
 .bg-light {
     background-color: #7952b3 !important;
-
 }
 
 .nav-link,
@@ -92,4 +91,9 @@ a,
     color: gray;
     font-size: 0.8rem;
     font-style: italic;
+}
+
+/* CSS FOR Profile page  */
+.sidemenu {
+    color: black;
 }
