@@ -244,6 +244,13 @@ class City(db.Model):
 
     user = db.relationship("User", backref="city")
 
+    def serialized_city(self):
+        """Return serialized City"""
+        return {
+            'id': self.id,
+            'city': self.name
+        }
+
 
 def connect_db(app):
     """Connect database to flask app"""
