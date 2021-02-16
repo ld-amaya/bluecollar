@@ -5,8 +5,8 @@ import uuid
 from flask import Flask, request, render_template, jsonify, flash, session, redirect
 from flask_debugtoolbar import DebugToolbarExtension
 from models import db, connect_db, User, City, Service, User_Service, Type, User_Type, Job, User_Job, Comment, Message
-from forms import RegistrationForm, WorkerForm, LoginForm, CommentForm, MessageForm
-from validation import Validate
+from forms import RegistrationForm, WorkerForm, LoginForm, CommentForm, MessageForm, PasswordForm, ProfileForm, JobForm, CityForm
+from validation import Validate, Password, ServiceType
 from mail import Email
 from datetime import datetime
 
@@ -36,6 +36,7 @@ def login_user(user):
     session['uid'] = user.id
     session['email'] = user.email
     session['name'] = user.first_name
+    session['type'] = user.type[0].name
 
 
 def logout_user():
@@ -43,6 +44,7 @@ def logout_user():
     del session['uid']
     del session['email']
     del session['name']
+    del session['type']
 
 
 def Validate_Image(filename):
@@ -105,7 +107,7 @@ def worker_details(id):
 
 @app.route("/messages")
 def display_message():
-    """Handles dispaly of all messages"""
+    """Handles display of all messages"""
 
     # Redirect user to homepage if not logged in
     if not 'uid' in session:
@@ -125,6 +127,12 @@ def display_message():
             chatids.append(c.message_to)
     chatmates = User.query.filter(User.id.in_(chatids)).all()
     return render_template("/users/messages.html", chatmates=chatmates)
+
+
+@app.route("/profile")
+def display_profile():
+    """Handles profile page display"""
+    return render_template("/users/profile.html")
 
 ###### POST ROUTES ###########################################
 
@@ -196,11 +204,11 @@ def register(user_type):
                     "Invalid file extension ('.jpg', '.png', '.gif'")
                 return render_template("/users/registration.html", form=form, user_type=user_type)
 
-        # Instantiate user class
+        # Instantiate user and password class
         user = Validate(form, ut, filename)
-
+        password = Password(form)
         # Verify password format
-        if not user.valid_password():
+        if not password.valid_password():
             form.password.errors.append(
                 "Password must be at least 8 characters with numbers, special characters, lowercase and uppercase!")
             return render_template("/users/registration.html", form=form, user_type=user_type)
@@ -241,11 +249,72 @@ def register(user_type):
     return render_template("/users/registration.html", form=form, user_type=user_type)
 
 
-@ app.route("/user/<int:id>/edit", methods=["GET", "POST"])
-def edit_user(id):
+@ app.route("/profile/edit", methods=["GET", "POST"])
+def edit_user():
     """Handles editing of user"""
-    user = User.query.get_or_404(id)
-    return render_template("edit_profile.html", user=user)
+    cities = City.query.all()
+    user = User.query.get_or_404(session['uid'])
+    form = ProfileForm(obj=user)
+    job = JobForm()
+    if form.validate_on_submit():
+        city = request.form['cities']
+        user.first_name = form.first_name.data
+        user.last_name = form.last_name.data
+        user.email = form.email.data
+        user.facebook = form.facebook.data
+        user.mobile = form.mobile.data
+        user.city_id = city
+        db.session.add(user)
+        db.session.commit()
+
+        if session['type'] == "bluecollar":
+            # Remove all existing user service
+            services = User_Service.query.filter(
+                User_Service.user_id == session['uid']).all()
+            for s in services:
+                db.session.delete(s)
+
+            # add new services selected
+            service = ServiceType(
+                job.carpenter.data, job.painter.data, job.electrician.data, job.plumber.data)
+            service.UserService(session['uid'])
+        flash("Profile successfully updated", "success")
+    return render_template("/users/profile.html", form=form, job=job)
+
+
+@app.route("/password/edit", methods=["GET", "POST"])
+def password_edit():
+    """Handles changing of password"""
+    form = PasswordForm()
+    if form.validate_on_submit():
+
+        # check if new and confirmed passwords are matched
+        new_pass = form.new_password.data
+        con_pass = form.confirm_password.data
+        if new_pass != con_pass:
+            form.new_password.errors.append("Password does not match!")
+            return render_template("/users/password.html", form=form)
+
+        # instantiate password class and verify password validity
+        password = Password(form)
+        if not password.valid_password():
+            form.confirm_password.errors.append(
+                "Password must be at least 8 characters")
+            form.confirm_password.errors.append(
+                "Password must contain numbers")
+            form.confirm_password.errors.append(
+                "Passowrd must contain special characters")
+            form.confirm_password.errors.append(
+                "Password must contain lowercase and uppercase")
+            return render_template("/users/password.html", form=form)
+
+        # Verify login
+        is_valid = User.login(session['email'], form.password.data)
+        if is_valid:
+            user = User.query.get_or_404(session['uid'])
+            password.save_password(user, form.new_password.data)
+            flash("Password successfully changed", "success")
+    return render_template("/users/password.html", form=form)
 
 
 @ app.route("/login", methods=["GET", "POST"])
@@ -338,3 +407,12 @@ def check_unread_messages(id):
         if not m.is_read and not m.message_from == session['uid']:
             read = False
     return ({'read': read})
+
+
+@app.route("/cities", methods=["POST"])
+def return_cities():
+    """Handles City List API Request"""
+    cities = [c.serialized_city() for c in City.query.all()]
+    user = User.query.get_or_404(session['uid'])
+    services = [s.name for s in user.service]
+    return jsonify(user={'id': user.city.id, 'city': user.city.name}, cities=cities, services=services)
