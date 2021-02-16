@@ -6,13 +6,13 @@
         <div class="col-md-3">
             <h5 class ="text-success pt-2">Conversations</h5>
             <hr>
-                {% for chatmate in chatmates%}
-                    <a href="#" class="text-primary chat" id = "{{chatmate.id}}"> 
-                        <img src="/static/images/profiles/{{chatmate.profile}}" class ="message_profile mr-3">
-                        {{chatmate.first_name}} {{chatmate.last_name}}
-                    </a>
-                    <hr>
-                {% endfor %}
+            {% for chatmate in chatmates%}
+                <a href="#" class="text-primary chat" id = "{{chatmate.id}}"> 
+                    <img src="/static/images/profiles/{{chatmate.profile}}" class ="message_profile mr-3">
+                    {{chatmate.first_name}} {{chatmate.last_name}}
+                </a>
+                <hr>
+            {% endfor %}
         </div>
         <div class="col-md-9 mb-2">
             <div>
