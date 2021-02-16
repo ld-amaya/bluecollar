@@ -1,7 +1,7 @@
 {% with messages = get_flashed_messages() %}
     {% if messages %}
         {% for msg in messages %}
-            <span class='badge badge-primary'>{{msg}}</span>
+            <span class='alert alert-primary' role='alert'>{{msg}}</span>
         {% endfor %}
     {% endif %}
 {% endwith %}
