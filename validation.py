@@ -23,17 +23,6 @@ class Validate():
         self.user_type = user_type
         self.profile = filename
 
-    def valid_password(self):
-        """Handles password validation if it meets criteria"""
-
-        # Compile Regex
-        valid = re.compile(valid_data)
-        # Search password for invalid input
-        is_valid = re.search(valid, self.password)
-        if is_valid:
-            return True
-        return False
-
     def valid_email(self):
         """Handles email verification using MailBoxLayer API"""
         api_data = requests.get(
@@ -108,6 +97,72 @@ class Validate():
             db.session.add(plumber)
 
         if electrician:
+            electrician = User_Service(
+                user_id=user_id,
+                service_id=4
+            )
+            db.session.add(electrician)
+
+        db.session.commit()
+
+
+class Password():
+
+    def __init__(self, form):
+        """Instantiate Password Class"""
+
+        self.password = form.password.data
+
+    def valid_password(self):
+        """Handles password validation if it meets criteria"""
+
+        # Compile Regex
+        valid = re.compile(valid_data)
+        # Search password for invalid input
+        is_valid = re.search(valid, self.password)
+        if is_valid:
+            return True
+        return False
+
+    def save_password(self, user, new_pass):
+        hashed = bcrypt.generate_password_hash(new_pass)
+        # turn byte string to normal (unicode utf8) string
+        user.password = hashed.decode("utf8")
+        db.session.add(user)
+        db.session.commit()
+
+
+class ServiceType():
+    def __init__(self, carpenter, painter, electrician, plumber):
+        """Instantiate Service Type"""
+        self.carpenter = carpenter
+        self.painter = painter
+        self.electrician = electrician
+        self.plumber = plumber
+
+    def UserService(self, user_id):
+        if self.carpenter:
+            carpenter = User_Service(
+                user_id=user_id,
+                service_id=1
+            )
+            db.session.add(carpenter)
+
+        if self.painter:
+            painter = User_Service(
+                user_id=user_id,
+                service_id=2
+            )
+            db.session.add(painter)
+
+        if self.plumber:
+            plumber = User_Service(
+                user_id=user_id,
+                service_id=3
+            )
+            db.session.add(plumber)
+
+        if self.electrician:
             electrician = User_Service(
                 user_id=user_id,
                 service_id=4
