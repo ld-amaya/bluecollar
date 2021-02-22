@@ -1,8 +1,6 @@
 """Seed database with sample data from CSV Files."""
 from csv import DictReader
-
-from app import app
-from models import db, connect_db, User, City, Service, User_Service, Type, User_Type, Job, User_Job, Comment, Message
+from models import db, User, City, Service, User_Service, Type, User_Type, Job, User_Job, Comment, Message
 
 # Create Types of User
 client = Type(
