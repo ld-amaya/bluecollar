@@ -97,3 +97,14 @@ a,
 .sidemenu {
     color: black;
 }
+
+.profile_pix{
+    border-radius: 50%;
+    padding:10px;
+}
+
+/* CSS FOR Album */
+
+.image_album{
+    width:100%;
+}
