@@ -1,14 +1,18 @@
 import os
-import requests
-import json
 import uuid
-from flask import Flask, request, render_template, jsonify, flash, session, redirect
+from flask import Flask, request, render_template, jsonify, flash, session, redirect, g
 from flask_debugtoolbar import DebugToolbarExtension
-from models import db, connect_db, User, City, Service, User_Service, Type, User_Type, Job, User_Job, Comment, Message
-from forms import RegistrationForm, WorkerForm, LoginForm, CommentForm, MessageForm, PasswordForm, ProfileForm, JobForm, CityForm
-from registration import Registration, Password, ServiceType
+from models import db, connect_db, User, City, User_Service, Comment, Message, Image
+from forms import RegistrationForm, WorkerForm, LoginForm, CommentForm, MessageForm, PasswordForm, UserProfileForm, WorkerProfileForm, JobForm, ImageForm, AlbumForm
+from registration import Registration
+from user import UserProfile
+from password import Password
+from service import ServiceType
+from album import Album
 from mail import Email
 from datetime import datetime
+
+CURRENT_USER_KEY = "current_user"
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'iamlou'
@@ -22,29 +26,36 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True
 
 # # File upload Settings
-app.config['UPLOAD_PATH'] = 'static/images/profiles/'
-app.config['UPLOAD_EXTENSIONS'] = ['.jpg', '.png', '.gif']
+app.config['UPLOAD_PROFILE_PATH'] = 'static/images/profiles/'
+app.config['UPLOAD_ALBUM_PATH'] = 'static/images/uploads/'
+# app.config['MAX_CONTENT_LENGTH'] = 1024*1024
+app.config['UPLOAD_EXTENSIONS'] = ['.jpg', '.png']
+
 
 connect_db(app)
 
 ##############################################################################
 
 
+@app.before_request
+def global_user():
+    """Create global user"""
+    if CURRENT_USER_KEY in session:
+        g.user = User.query.get(session[CURRENT_USER_KEY])
+    else:
+        g.user = None
+
+
 def login_user(user):
     """Create user sessions"""
 
-    session['uid'] = user.id
-    session['email'] = user.email
-    session['name'] = user.first_name
-    session['type'] = user.type[0].name
+    session[CURRENT_USER_KEY] = user.id
 
 
 def logout_user():
     """Delete all sessions"""
-    del session['uid']
-    del session['email']
-    del session['name']
-    del session['type']
+    if CURRENT_USER_KEY in session:
+        del session[CURRENT_USER_KEY]
 
 
 def Validate_Image(filename):
@@ -54,8 +65,35 @@ def Validate_Image(filename):
         return False
     return True
 
+#################### LOGIN AND LOGOUT ###########################################
 
-##############################################################################
+
+@ app.route("/login", methods=["GET", "POST"])
+def login():
+    """Handles User Login"""
+
+    login_form = LoginForm()
+    if login_form.validate_on_submit():
+        user = User.login(login_form.email.data, login_form.password.data)
+        if user:
+            login_user(user)
+            # Check if user came from login.html then redirect to homepage
+            if 'login' in request.referrer:
+                return redirect("/")
+            return redirect(request.referrer)
+    return render_template("/users/login.html", login_form=login_form)
+
+
+@ app.route("/logout")
+def logout():
+    """Handles User Logout"""
+    if not g.user:
+        return redirect("/")
+    logout_user()
+    return redirect(request.referrer)
+
+
+#################### GET ROUTES ###########################################
 
 
 @app.route("/")
@@ -77,8 +115,6 @@ def homepage():
 
     login_form = LoginForm()
     return render_template("index.html", carpenters=carpenters, painters=painters, plumbers=plumbers, electricians=electricians, login_form=login_form)
-
-###### GET ROUTES ###########################################
 
 
 @ app.route("/worker/<int:id>")
@@ -110,12 +146,12 @@ def display_message():
     """Handles display of all messages"""
 
     # Redirect user to homepage if not logged in
-    if 'uid' not in session:
+    if not g.user:
         return redirect("/")
 
     # Get the unique id of from and to
     chatmates = (Message.query
-                 .filter((Message.message_from == session['uid']) | (Message.message_to == session['uid']))
+                 .filter((Message.message_from == g.user.id) | (Message.message_to == g.user.id))
                  .all()
                  )
 
@@ -126,20 +162,14 @@ def display_message():
     # Get the chatids
     chatids = []
     for c in chatmates:
-        if not c.message_from == session['uid'] and c.message_from not in chatids:
+        if not c.message_from == g.user.id and c.message_from not in chatids:
             chatids.append(c.message_from)
-        elif not c.message_to == session['uid'] and c.message_to not in chatids:
+        elif not c.message_to == g.user.id and c.message_to not in chatids:
             chatids.append(c.message_to)
     chatmates = User.query.filter(User.id.in_(chatids)).all()
     return render_template("/users/messages.html", chatmates=chatmates)
 
-
-@app.route("/profile")
-def display_profile():
-    """Handles profile page display"""
-    return render_template("/users/profile.html")
-
-###### POST ROUTES ###########################################
+#################### POST ROUTES ###########################################
 
 
 @ app.route("/message/add/<int:id>", methods=["POST"])
@@ -147,14 +177,14 @@ def send_message(id):
     """Handles adding message"""
 
     # Redirect user to homepage if not logged in
-    if 'uid' not in session:
+    if not g.user:
         return redirect("/")
 
     form = MessageForm()
     if form.validate_on_submit():
         message = Message(
             message=form.message.data,
-            message_from=session['uid'],
+            message_from=g.user.id,
             message_to=id,
             timestamp=datetime.utcnow()
         )
@@ -167,7 +197,7 @@ def send_message(id):
 def add_comments(id):
     """Handles saving of comments and rating"""
 
-    if 'uid' not in session:
+    if not g.user:
         return redirect("/")
 
     form = CommentForm()
@@ -177,7 +207,7 @@ def add_comments(id):
             title=form.title.data,
             comment=form.comment.data,
             rating=rating,
-            user_from_id=session['uid'],
+            user_from_id=g.user.id,
             user_to_id=id
         )
         db.session.add(comment)
@@ -185,19 +215,17 @@ def add_comments(id):
     return redirect(f"/worker/{id}")
 
 
+#################### GET, POST ROUTES ###########################################
+
 @ app.route("/registration/<user_type>", methods=['GET', 'POST'])
 def register(user_type):
     """Handles User Registration"""
     cities = City.query.all()
     if user_type == 'user':
         form = RegistrationForm(cities=cities)
-        facebook = ""
-        mobile = ""
         ut = 1
     elif user_type == 'worker':
         form = WorkerForm(cities=cities)
-        facebook = form.facebook.data
-        mobile = form.mobile.data
         ut = 2
     else:
         return redirect("/")
@@ -214,12 +242,13 @@ def register(user_type):
             # Validate Profile Picture
             if not Validate_Image(filename):
                 form.profile.errors.append(
-                    "Invalid file extension ('.jpg', '.png', '.gif'")
+                    "Invalid file extension ('.jpg', '.png'")
                 return render_template("/users/registration.html", form=form, user_type=user_type)
 
         # Instantiate user and password class
-        user = Validate(form, ut, filename)
+        user = Registration(form, ut, filename)
         password = Password(form)
+
         # Verify password format
         if not password.valid_password():
             form.password.errors.append(
@@ -233,22 +262,24 @@ def register(user_type):
             return render_template("/users/registration.html", form=form, user_type=user_type)
 
         # Create user session
-        sess = user.register_user(facebook, mobile)
+        sess = user.register_user(form.facebook.data, form.mobile.data,
+                                  form.title.data, form.description.data)
         user.Add_User_Type(sess.id)
 
         if user_type == "worker":
-            user.Add_Services(sess.id, form.carpenter.data, form.painter.data,
-                              form.plumber.data, form.electrician.data)
+            # Instantiate service class
+            service = ServiceType(form)
+            service.Add_Services(sess.id)
 
         # Upload profile picture
-        if filename:
+        if form.profile.data:
             profile.save(os.path.join("static/images/profiles/") + filename)
 
         # Create user session
         login_user(sess)
 
         # Send email verification to user
-        # sendMail = Email(session['email'])
+        # sendMail = Email(g.user.email)
         # sendMail.VerifyMail()
         return redirect("/")
 
@@ -257,37 +288,34 @@ def register(user_type):
 
 @ app.route("/profile/edit", methods=["GET", "POST"])
 def edit_user():
-    """Handles editing of user"""
+    """Handles editing of user profile"""
 
-    if 'uid' not in session:
+    if not g.user:
         return redirect("/")
-    cities = City.query.all()
-    user = User.query.get_or_404(session['uid'])
-    form = ProfileForm(obj=user)
+
+    if g.user.type[0].name == "bluecollar":
+        form = WorkerProfileForm(obj=g.user)
+    else:
+        form = UserProfileForm(obj=g.user)
     job = JobForm()
     if form.validate_on_submit():
         city = request.form['cities']
-        user.first_name = form.first_name.data
-        user.last_name = form.last_name.data
-        user.email = form.email.data
-        user.facebook = form.facebook.data
-        user.mobile = form.mobile.data
-        user.city_id = city
-        db.session.add(user)
-        db.session.commit()
+        user = UserProfile(form, city)
 
-        if session['type'] == "bluecollar":
-            # Remove all existing user service
+        if not g.user.type[0].name == "bluecollar":
+            user.update()
+        else:
+            user.update(form.facebook.data, form.mobile.data,
+                        form.title.data, form.description.data)
+
             services = User_Service.query.filter(
-                User_Service.user_id == session['uid']).all()
-            for s in services:
-                db.session.delete(s)
-
-            # add new services selected
-            service = ServiceType(
-                job.carpenter.data, job.painter.data, job.electrician.data, job.plumber.data)
-            service.UserService(session['uid'])
+                User_Service.user_id == g.user.id).all()
+            # Instantiate ServiceType class and add bluecollar services
+            service = ServiceType(job)
+            service.Add_Services(g.user.id, services)
         flash("Profile successfully updated", "success")
+        # redirect to self to avoid form resubmission
+        return redirect("/profile/edit")
     return render_template("/users/profile.html", form=form, job=job)
 
 
@@ -295,7 +323,7 @@ def edit_user():
 def password_edit():
     """Handles changing of password"""
 
-    if 'uid' not in session:
+    if not g.user:
         return redirect("/")
     form = PasswordForm()
     if form.validate_on_submit():
@@ -318,41 +346,74 @@ def password_edit():
                 "Passowrd must contain special characters")
             form.confirm_password.errors.append(
                 "Password must contain lowercase and uppercase")
-            return render_template("/users/password.html", form=form)
+            return redirect("/users/password.html", form=form)
 
         # Verify login
-        is_valid = User.login(session['email'], form.password.data)
+        is_valid = User.login(g.user.email, form.password.data)
         if is_valid:
-            user = User.query.get_or_404(session['uid'])
+            user = User.query.get_or_404(g.user.id)
             password.save_password(user, form.new_password.data)
             flash("Password successfully changed", "success")
+            # redirect to self to avoid form resubmission
+            return redirect("/password/edit")
     return render_template("/users/password.html", form=form)
 
 
-@ app.route("/login", methods=["GET", "POST"])
-def login():
-    """Handles User Login"""
+@app.route("/image/upload", methods=["GET", "POST"])
+def image_upload():
+    """Handles uploading of images"""
 
-    login_form = LoginForm()
-    if login_form.validate_on_submit():
-        user = User.login(login_form.email.data, login_form.password.data)
-        if user:
-            login_user(user)
-            # Check if user came from login.html then redirect to homepage
-            if 'login' in request.referrer:
-                return redirect("/")
-            return redirect(request.referrer)
-    return render_template("/users/login.html", login_form=login_form)
-
-
-@ app.route("/logout")
-def logout():
-    """Handles User Logout"""
-    if 'uid' not in session:
+    if not g.user:
         return redirect("/")
-    logout_user()
-    return redirect(request.referrer)
 
+    form = ImageForm()
+    album_form = AlbumForm()
+
+    if form.validate_on_submit():
+        img = Album(app.config['UPLOAD_PROFILE_PATH'],
+                    app.config['UPLOAD_EXTENSIONS'])
+        images = form.profile_pix.data
+        if img.validate_profile(images):
+            flash("Profile successfully changed", "success")
+            # redirect to self to avoid form resubmission
+            return redirect("/image/upload")
+        else:
+            form.profile_pix.errors.append(
+                "An error occured while uploading profile picture, please try again!")
+    return render_template("/users/image.html", form=form, album_form=album_form)
+
+
+@app.route("/album/upload", methods=["GET", "POST"])
+def album_upload():
+    """Handles uploading of album"""
+
+    if not g.user:
+        return redirect("/")
+
+    album_form = AlbumForm()
+    form = ImageForm()
+
+    if album_form.validate_on_submit():
+        img = Album(app.config['UPLOAD_ALBUM_PATH'],
+                    app.config['UPLOAD_EXTENSIONS'])
+        images = album_form.album_pix.data
+        if img.validate_album(images):
+            flash("Album successfully changed", "success")
+            # redirect to self to avoid form resubmission
+            return redirect("/image/upload")
+        else:
+            album_form.album_pix.errors.append(
+                "An error occured while uploading profile pictures, please try again!")
+    return render_template("/users/image.html", form=form, album_form=album_form)
+
+
+@app.route("/image/delete/<int:image_id>", methods=["POST"])
+def delete_image(image_id):
+    """Handles deleting of image from the album"""
+    image = Image.query.get_or_404(image_id)
+    db.session.delete(image)
+    db.session.commit()
+    return redirect("/album/upload")
 
 ###### API REQUESTS ROUTES ###########################################
 
@@ -360,19 +421,19 @@ def logout():
 @ app.route("/messages/retrieve/<int:id>")
 def retrieve_messages(id):
     """Handles retrieval of message from for user"""
-    if 'uid' not in session:
+    if not g.user:
         return redirect("/")
     all_messages = (Message.query
-                    .filter(((Message.message_from == session['uid']) & (Message.message_to == id)) |
-                            ((Message.message_from == id) & (Message.message_to == session['uid'])))
+                    .filter(((Message.message_from == g.user.id) & (Message.message_to == id)) |
+                            ((Message.message_from == id) & (Message.message_to == g.user.id)))
                     .order_by(Message.timestamp.desc())
                     .all())
     for m in all_messages:
-        if not m.message_from == session['uid']:
+        if not m.message_from == g.user.id:
             m.is_read = True
             db.session.add(m)
             db.session.commit()
-    messages = [m.serialized_messages(session['uid']) for m in all_messages]
+    messages = [m.serialized_messages(g.user.id) for m in all_messages]
 
     return jsonify(messages)
 
@@ -381,16 +442,16 @@ def retrieve_messages(id):
 def check_unread_messages(id):
     """Check for unread messages"""
 
-    if 'uid' not in session:
+    if not g.user:
         return redirect("/")
     all_messages = (Message.query
-                    .filter(((Message.message_from == session['uid']) & (Message.message_to == id)) |
-                            ((Message.message_from == id) & (Message.message_to == session['uid'])))
+                    .filter(((Message.message_from == g.user.id) & (Message.message_to == id)) |
+                            ((Message.message_from == id) & (Message.message_to == g.user.id)))
                     .order_by(Message.timestamp.desc())
                     .all())
     read = True
     for m in all_messages:
-        if not m.is_read and not m.message_from == session['uid']:
+        if not m.is_read and not m.message_from == g.user.id:
             read = False
     return ({'read': read})
 
@@ -400,17 +461,15 @@ def return_cities():
     """Handles City List API Request"""
 
     cities = [c.serialized_city() for c in City.query.all()]
-    user = User.query.get_or_404(session['uid'])
+    user = User.query.get_or_404(g.user.id)
     services = [s.name for s in user.service]
     return jsonify(user={'id': user.city.id, 'city': user.city.name}, cities=cities, services=services)
 
 
-@ app.route("/email/<email>", methods=["POST"])
+@ app.route("/email/<email>")
 def check_email_if_existing(email):
     """Handles return of services list"""
 
-    if 'uid' not in session:
-        return redirect("/")
     data = [e.serialized_email()
             for e in User.query.filter(User.email == email).all()]
     return jsonify(data)
@@ -421,11 +480,11 @@ def send_new_message():
     """Handles sending of new messages via axios"""
 
     if 'uid' not in session:
-        return redirect("/")
+        return ({'status': False})
     data = request.json
     new_message = Message(
         message=data['text'],
-        message_from=session['uid'],
+        message_from=g.user.id,
         message_to=data['id'],
         timestamp=datetime.utcnow()
     )
@@ -434,9 +493,9 @@ def send_new_message():
 
     # return new data
     all_messages = (Message.query
-                    .filter(((Message.message_from == session['uid']) & (Message.message_to == data['id'])) |
-                            ((Message.message_from == data['id']) & (Message.message_to == session['uid'])))
+                    .filter(((Message.message_from == g.user.id) & (Message.message_to == data['id'])) |
+                            ((Message.message_from == data['id']) & (Message.message_to == g.user.id)))
                     .order_by(Message.timestamp.desc())
                     .all())
-    messages = [m.serialized_messages(session['uid']) for m in all_messages]
+    messages = [m.serialized_messages(g.user.id) for m in all_messages]
     return jsonify(messages)
