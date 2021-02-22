@@ -205,6 +205,8 @@ class User(db.Model):
     city_id = db.Column(db.Integer,
                         db.ForeignKey('cities.id', ondelete='cascade'))
     profile = db.Column(db.Text, default=profile_pix)
+    title = db.Column(db.String(100))
+    description = db.Column(db.Text)
 
     comment_from = db.relationship("User",
                                    secondary="comments",
@@ -250,6 +252,21 @@ class City(db.Model):
             'id': self.id,
             'city': self.name
         }
+
+
+class Image(db.Model):
+    """Create the image model"""
+
+    __tablename__ = "images"
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(100),
+                     nullable=False)
+    user_id = db.Column(db.Integer,
+                        db.ForeignKey("users.id", ondelete="CASCADE"),
+                        nullable=False)
+
+    user = db.relationship("User",
+                           backref="images")
 
 
 def connect_db(app):
