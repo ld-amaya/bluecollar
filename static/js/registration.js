@@ -2,7 +2,7 @@ const URL = "http://127.0.0.1:5000"
 
 
 async function verifyEmail(email) {
-    let res = await axios.post(`${URL}/email/${email}`)
+    let res = await axios.get(`${URL}/email/${email}`)
     if (res.data.length > 0) {
         $('#email').val("")
         $('#emailtakenmodal').modal('show')

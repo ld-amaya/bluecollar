@@ -5,7 +5,7 @@ const chats = document.querySelectorAll('.chat')
 async function loadMessages(id) {
     // Revisit this approach lou
     try {
-        const response = await axios.post(`${URL}/messages/retrieve/${id}`)
+        const response = await axios.get(`${URL}/messages/retrieve/${id}`)
         loadChat(response)
     } catch (e) {
         console.log(e)
@@ -19,7 +19,12 @@ async function sendMessage() {
             'text': $('#text').val()
         }
         const response = await axios.post(`${URL}/messages/send`, params)
-        loadChat(response)
+        if (response.data.status != False) {
+            loadChat(response)    
+        } else {
+            window.location.href = "URL"
+        }
+        
     } catch (e) {
         console.log(e)
     }
@@ -27,7 +32,7 @@ async function sendMessage() {
 
 async function checkMessages(id) {
     try {
-        const response = await axios.post(`${URL}/checkunread/${id}`) 
+        const response = await axios.get(`${URL}/checkunread/${id}`) 
         if (!response.data.read) {
             $(`#${id}`).addClass("font-weight-bold")
         }
@@ -66,7 +71,10 @@ function getDate(thisDate) {
 }
 
 function bottomScroll() {
-    chat_container.scrollTop = chat_container.scrollHeight
+    if (chat_container.scrollHeight){
+        chat_container.scrollTop = chat_container.scrollHeight
+    }
+    
 }
 
 function checkUnread() {
@@ -75,7 +83,7 @@ function checkUnread() {
     })
 }
 
-$('#sendMessage').click(() => {
+$('#sendMessage').click((e) => {
     if ($('#session').length) {
         $('#messagemodal').modal('show')
     } else {
@@ -90,7 +98,7 @@ $('.chat').click((e) => {
 })
 
 $('#send').click((e) => {
-    if ($('#chatmate').data('id')){
+    if ($('#chatmate').data('id')) {
         sendMessage()
     }
 })

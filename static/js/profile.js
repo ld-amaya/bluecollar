@@ -2,8 +2,7 @@ const URL = "http://127.0.0.1:5000"
 
 async function loadCities() {
     try {
-        const response = await axios.post(`${URL}/cities`)
-        console.log(response)
+        const response = await axios.get(`${URL}/cities`)
         cities = response.data.cities
         cities.forEach((city) => {
             $('#cities').append(`<option value=${city.id}>${city.city}</option>`)
