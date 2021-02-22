@@ -9,4 +9,8 @@ $(document).ready(function () {
     $('#register_login').click(() => {
         $('#usermodal').modal('show')
     });
+    $('#createUser').click(() => {
+        $('#loginmodal').modal('hide')
+        $('#usermodal').modal('show')
+    })
 });
