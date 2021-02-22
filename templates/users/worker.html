@@ -38,32 +38,44 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-8 mb-2">
-            {% if user.job[0] %}
-                <h2>{{user.job[0].job}}</h2>
-                <img src="/static/images/default-image.png" alt="">
+        <div class="col-md-9 mb-2">
+            {% if user.title %}
+                <h2>{{user.title}}</h2>
+            {% else %}
+                <h2>No Title</h2>
+            {% endif %}
+            {% if user.images %}
+                <div class = "carousel slide" id="albumSlides" data-ride ="carousel">
+                    <div class="carousel-inner">
+                        {% for image in user.images %}
+                            <div class="carousel-item">
+                                <img src="/static/images/uploads/{{image.name}}" class="d-block image_album" alt="{{image.name}}">
+                            </div>
+                        {% endfor %}
+                        <a href="#albumSlides" class= "carousel-control-prev" role="button" data-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="sr-only">Previous</span>
+                        </a>
+                        <a href="#albumSlides" class="carousel-control-next" role="button" data-slide="next">
+                            <span class="carousel-control-next-button" aria-hidden="true"></span>
+                            <span class="sr-only">Next</span>
+                        </a> 
+                    </div>
+                </div>
+            {% else %}
+                <img src="/static/images/uploads/default-image.png" alt="">
+            {% endif %}
+            
                 <hr />
                 <h5 class="mt-3">Description</h5>
                 <p>
-                    {{user.job[0].description}}
+                    {{user.description}}
                 </p>
                 <hr>
                 <h5 class="mt-3">Location</h5>
                 <p>
                     <i class="fas fa-map-marker-alt"></i> <span> {{user.city.name}} </span>
                 </p>
-            {% else %}
-                <h2>No Title</h2>
-                <img src="/static/images/default-image.png" alt="">
-                <hr />
-                <h5 class="mt-3">Description</h5>
-                <p></p>
-                <hr>
-            {% endif %}
-            <h5 class="mt-3">Location</h5>
-            <p>
-                <i class="fas fa-map-marker-alt"></i> <span> {{user.city.name}} </span>
-            </p>
             <hr />
             <div class="form-inline justify-content-between">
                 <h5 class = "mt-3">Comments</h5>
@@ -99,7 +111,8 @@
         </div>
     </div>
 {% endblock %}
-{% if session['uid'] %}
+
+{% if g.user %}
     {% include "/modals/_modal_comments.html" %}
     {% include "/modals/_modal_messages.html" %}
 {% else %}
@@ -110,4 +123,5 @@
 {% block scripts %} 
     <script src ="/static/js/comments.js"></script>
     <script src ="/static/js/messages.js"></script>
+    <script src ="/static/js/worker.js"></script>
 {% endblock %}

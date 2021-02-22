@@ -31,8 +31,8 @@
             </li>
             </ul>
             <login class="form-inline my-2 my-lg-0">
-                {% if session['uid'] %}
-                    <span  class ="mr-3" id="sesssionHeader">Hi, <span id="session">{{ session['name']}}</span></span>
+                {% if g.user %}
+                    <span  class ="mr-3" id="sesssionHeader">Hi, <span id="session">{{ g.user.first_name}}</span></span>
                     <i class="far fa-bell mx-1 menu"></i>
                     <a href="/messages" class="mx-1"> <i class="far fa-envelope menu"></i></a>
                     <div class="nav-item dropdown">

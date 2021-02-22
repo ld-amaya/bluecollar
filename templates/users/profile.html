@@ -24,11 +24,7 @@
                                 {{ field.label }}
                             </div>
                             <div class="col-md-8">
-                                {% if not field.name== 'profile' %}
-                                    {{ field (class_='form-control') }}
-                                {% else %}
-                                    {{ field}}
-                                {% endif %}
+                                {{ field (class_='form-control')}}
                                 {% for err in field.errors %}
                                     <small class = "badge badge-danger mt-1">
                                         {{err}}
@@ -49,47 +45,31 @@
                         </div>
                     </div>
                 </div>
-                <div class="form-group">
+                
+                {% if g.user.type[0].name == 'bluecollar' %}
                     <div class="row">
-                        <div class="col-md-4"> 
-                            Carpenter
+                        <div class="col-md-4">
+                            Select Your Job Profession
                         </div>
                         <div class="col-md-8">
-                            <input type="checkbox" class ="form-control" name ="carpenter" id="carpenter">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    {{job.carpenter}} {{job.carpenter.label}}
+                                </div>
+                                <div class="col-md-6">
+                                    {{job.painter}} {{job.painter.label}}
+                                </div>
+                                <div class="col-md-6">
+                                    {{job.electrician}} {{job.electrician.label}}
+                                </div>
+                                <div class="col-md-6">
+                                    {{job.plumber}} {{job.plumber.label}}
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <div class="row">
-                        <div class="col-md-4"> 
-                            Painter
-                        </div>
-                        <div class="col-md-8">
-                            <input type="checkbox" class ="form-control" name ="painter" id="painter">
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <div class="row">
-                        <div class="col-md-4"> 
-                            Electrician
-                        </div>
-                        <div class="col-md-8">
-                            <input type="checkbox" class ="form-control" name ="electrician" id="electrician">
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <div class="row">
-                        <div class="col-md-4"> 
-                            Plumber
-                        </div>
-                        <div class="col-md-8">
-                            <input type="checkbox" class ="form-control" name ="plumber" id="plumber">
-                        </div>
-                    </div>
-                </div>
-                <div class="text-right mb-5">
+                {% endif %}
+                <div class="text-right mt-2 mb-5">
                     <a href='/' class ='btn btn-success btn-md'> Cancel</a>
                     <input type="Submit" class = 'btn btn-primary btn-md' value='Submit'>
                 </div>
