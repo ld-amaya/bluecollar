@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block title %} Update Profile {% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-3">
+            <div class="list-group">
+                <a href="/profile/edit" class = "list-group-item list-group-item-action sidemenu" id='personal'>Personal</a>
+                <a href="/image/upload" class = "list-group-item list-group-item-action sidemenu active" id ='upload'>Upload Images</a>
+                <a href="/password/edit" class = "list-group-item list-group-item-action sidemenu" id ='password'>Update Password</a>
+            </div>
+        </div>
+        <div class="col-md-9">
+            {% include "_flash.html" %}
+            <h5 id='menuHeader'>Change Profile Picture</h5>
+            <hr>
+            <form action="/image/upload" method="POST" enctype="multipart/form-data">
+                <div class="card mb-3">
+                    <div class="row no-gutters">
+                        <div class="col-md-3">
+                            <img src="/static/images/profiles/{{g.user.profile}}" class ="card-img-top profile_pix" alt="default image">
+                        </div>
+                        <div class="col-md-9">
+                            <div class="card-body">
+                                {{form.hidden_tag()}}
+                                {% for field in form if field.widget.input_type!='hidden' %}
+                                    <div class='form-group'>
+                                        <div class="row">
+                                            <div class ="col-12"> 
+                                                <h5> {{ field.label}} </h5>
+                                            </div>
+                                            <div>
+                                                {{ field (class_='col-12') }}
+                                                {% for err in field.errors %}
+                                                    <small class = "badge badge-danger mt-1">
+                                                        {{err}}
+                                                    </small>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            <div class="text-left mb-5 col-12">
+                                <input type="Submit" class = 'btn btn-primary btn-md' value='Upload'>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            {% if g.user.type[0].name == 'bluecollar' %}
+                <section class = "mt-5">
+                    <h5 id='menuHeader'>Upload / Edit Album</h5>
+                    <hr>
+                    <form action="/album/upload" method="POST" enctype="multipart/form-data">
+                        <div class="card mb-3">
+                            {{album_form.hidden_tag()}}
+                            {% for field in album_form if field.widget.input_type!='hidden' %}
+                                <div class='form-group'>
+                                    <div class="row">
+                                        <div>
+                                            {{ field (class_="p-4")}}
+                                            {% for err in field.errors %}
+                                                <small class = "badge badge-danger mt-1">
+                                                    {{err}}
+                                                </small>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                            <div class="text-left mb-5 col-12">
+                                <input type="Submit" class = 'btn btn-primary btn-md' value='Upload'>
+                            </div>
+                        </div>
+                    </form>
+                    <sub-section id ="display_album">
+                        <div class="row">
+                            {% for image in g.user.images %}
+                                <div class="col-md-3">
+                                    <div class="header">
+                                        <form action="/image/delete/{{image.id}}" method = "POST">
+                                            <button type ="submit" class="close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </form>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="card">
+                                            <img src="/static/images/uploads/{{image.name}}" class="card-img-top" alt="{{g.user.first_name}}">
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </sub-section>
+                </section>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script src="/static/js/profile.js"></script>
+{% endblock %}
