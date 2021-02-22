@@ -1,8 +1,8 @@
 from models import db, User
 from wtforms.validators import InputRequired, Email, Length, Optional
-from wtforms import StringField, PasswordField, SelectField, IntegerField, FileField, SubmitField, BooleanField, TextAreaField
+from wtforms import StringField, PasswordField, SelectField, IntegerField, FileField, BooleanField, TextAreaField, MultipleFileField
 from flask_wtf import FlaskForm
-from flask_wtf.file import FileField, FileRequired
+from flask_wtf.file import FileField, FileRequired, FileAllowed
 from werkzeug.utils import secure_filename
 
 
@@ -60,7 +60,8 @@ class RegistrationForm(FlaskForm):
 class WorkerForm(FlaskForm):
     """Defines the workerform for worker registration"""
 
-    profile = FileField('Profile Picture')
+    profile = FileField('Profile Picture', validators=[
+                        FileAllowed(['jpg', 'png'], "Images Only!")])
     first_name = StringField('First Name', validators=[
         InputRequired(), Length(min=1, max=50)])
     last_name = StringField('Last Name', validators=[
@@ -74,6 +75,9 @@ class WorkerForm(FlaskForm):
     city = SelectField(u'Select City (Cebu Province Only)',
                        choices=[],
                        coerce=int)
+
+    title = StringField('Portfolio Title')
+    description = TextAreaField('Description')
     carpenter = BooleanField('Carpenter')
     painter = BooleanField('Painter')
     electrician = BooleanField('Electrician')
@@ -85,7 +89,7 @@ class WorkerForm(FlaskForm):
             self.city.choices = [(c.id, c.name) for c in cities]
 
 
-class ProfileForm(FlaskForm):
+class UserProfileForm(FlaskForm):
     """Defines the profile form"""
 
     first_name = StringField('First Name', validators=[
@@ -94,12 +98,24 @@ class ProfileForm(FlaskForm):
         InputRequired(), Length(min=1, max=50)])
     email = StringField('Email', validators=[
         InputRequired(), Email(), Length(min=1, max=50)])
+
+
+class WorkerProfileForm(FlaskForm):
+    first_name = StringField('First Name', validators=[
+        InputRequired(), Length(min=1, max=50)])
+    last_name = StringField('Last Name', validators=[
+        InputRequired(), Length(min=1, max=50)])
+    email = StringField('Email', validators=[
+        InputRequired(), Email(), Length(min=1, max=50)])
     facebook = StringField('Facebook Link')
     mobile = IntegerField('Mobile Number', validators=[Optional()])
+    title = StringField('Portfolio Title')
+    description = TextAreaField('Description')
 
 
 class JobForm(FlaskForm):
     """Defines the job type forms"""
+
     carpenter = BooleanField('Carpenter')
     painter = BooleanField('Painter')
     electrician = BooleanField('Electrician')
@@ -120,4 +136,13 @@ class CityForm(FlaskForm):
 
 class ImageForm(FlaskForm):
     """Defines the profile image form"""
-    profile = FileField('Profile Picture')
+    profile_pix = FileField('Upload Picture',
+                            validators=[InputRequired(),
+                                        FileAllowed(['jpg', 'png'], "Images Only!")])
+
+
+class AlbumForm(FlaskForm):
+    """Defines the profile image form"""
+    album_pix = MultipleFileField('Upload Picture',
+                                  validators=[InputRequired(),
+                                              FileAllowed(['jpg', 'png'], "Images Only!")])
