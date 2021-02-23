@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %} List of {{service_name}} {% endblock %}
+{% block content %} 
+    <h5>{{service_name}}'s List</h5>
+    <div class="row">
+        {% for service in services %}
+            <div class="col-md-3 my-3">
+                <div class="card">
+                    <a href="/worker/{{service.id}}">
+                        {% if service.profile %}
+                            <img src="/static/images/profiles/{{service.profile}}" class ="card-img-top" alt="default image">
+                        {% else %}
+                            <img src="/static/images/profiles/default-icon.png" class ="card-img-top" alt="default image">
+                        {% endif %}
+                    </a>
+                    <div class="card-body">
+                        <h6>{{service.first_name}} {{service.last_name}} </h6>
+                        <p class="card-text">
+                            <a href="{{service.facebook}}">  <img class="fb_logo" src="/static/images/fb_logo.svg" alt=""> </a> - {{service_name}}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
