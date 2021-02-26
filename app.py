@@ -2,7 +2,7 @@ import os
 import uuid
 from flask import Flask, request, render_template, jsonify, flash, session, redirect, g
 from flask_debugtoolbar import DebugToolbarExtension
-from models import db, connect_db, User, City, User_Service, Comment, Message, Image
+from models import db, connect_db, User, City, Service, User_Service, Comment, Message, Image, Type
 from forms import RegistrationForm, WorkerForm, LoginForm, CommentForm, MessageForm, PasswordForm, UserProfileForm, WorkerProfileForm, JobForm, ImageForm, AlbumForm
 from registration import Registration
 from user import UserProfile
@@ -21,7 +21,7 @@ app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 toolbar = DebugToolbarExtension(app)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = (
-    os.environ.get('DATABASE_URL', 'postgres:///bluecollar'))
+    os.environ.get('DATABASE_URL', 'postgres:///bluecollar-test'))
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True
 
@@ -39,7 +39,8 @@ connect_db(app)
 
 @app.before_request
 def global_user():
-    """Create global user"""
+    """Create global user and global services"""
+    g.services = Service.query.all()
     if CURRENT_USER_KEY in session:
         g.user = User.query.get(session[CURRENT_USER_KEY])
     else:
@@ -74,13 +75,11 @@ def login():
 
     login_form = LoginForm()
     if login_form.validate_on_submit():
-        user = User.login(login_form.email.data, login_form.password.data)
+        user = User.login(login_form.email.data,
+                          login_form.password.data)
         if user:
             login_user(user)
-            # Check if user came from login.html then redirect to homepage
-            if 'login' in request.referrer:
-                return redirect("/")
-            return redirect(request.referrer)
+            return redirect("/")
     return render_template("/users/login.html", login_form=login_form)
 
 
@@ -107,11 +106,15 @@ def homepage():
     plumber_id = [f.user_id for f in user_service if f.service_id == 3]
     electrician_id = [f.user_id for f in user_service if f.service_id == 4]
 
-    carpenters = User.query.filter(User.id.in_(carpenter_id)).limit(4).all()
-    painters = User.query.filter(User.id.in_(painter_id)).limit(4).all()
-    plumbers = User.query.filter(User.id.in_(plumber_id)).limit(4).all()
+    carpenters = User.query.filter(User.id.in_(carpenter_id)).order_by(
+        User.rating.desc()).limit(4).all()
+    painters = User.query.filter(User.id.in_(painter_id)).order_by(
+        User.rating.desc()).limit(4).all()
+    plumbers = User.query.filter(User.id.in_(plumber_id)).order_by(
+        User.rating.desc()).limit(4).all()
     electricians = User.query.filter(
-        User.id.in_(electrician_id)).limit(4).all()
+        User.id.in_(electrician_id)).order_by(
+        User.rating.desc()).limit(4).all()
 
     login_form = LoginForm()
     return render_template("index.html", carpenters=carpenters, painters=painters, plumbers=plumbers, electricians=electricians, login_form=login_form)
@@ -128,14 +131,9 @@ def worker_details(id):
     # comment_id = [f.comment_id for f in comments if f.user_to == id]
     comments = Comment.query.filter(Comment.user_to_id == id).order_by(
         Comment.timestamp.desc()).all()
-    ave = 0
-    rate = [c.rating for c in comments]
-    if rate:
-        ave = sum(rate) / len(rate)
     return render_template("/users/worker.html",
                            user=user,
                            comments=comments,
-                           ave=round(ave),
                            login_form=login_form,
                            comment_form=comment_form,
                            message_form=message_form)
@@ -168,6 +166,17 @@ def display_message():
             chatids.append(c.message_to)
     chatmates = User.query.filter(User.id.in_(chatids)).all()
     return render_template("/users/messages.html", chatmates=chatmates)
+
+
+@app.route("/view/<service_name>/<int:sid>")
+def view_services(service_name, sid):
+    """Handles view all bluecollar for a service"""
+
+    user_service = User_Service.query.all()
+    service_id = [f.user_id for f in user_service if f.service_id == sid]
+    services = User.query.filter(User.id.in_(service_id)).all()
+
+    return render_template("/users/services.html", services=services, service_name=service_name)
 
 #################### POST ROUTES ###########################################
 
@@ -212,6 +221,19 @@ def add_comments(id):
         )
         db.session.add(comment)
         db.session.commit()
+    ratings = Comment.query.filter(Comment.user_to_id == id).all()
+    rate = 0
+    tot = 0
+    ave = 0
+    for r in ratings:
+        if r.rating:
+            tot += 1
+            rate += r.rating
+    ave = rate / tot
+    user = User.query.get_or_404(id)
+    user.rating = ave
+    db.session.add(user)
+    db.session.commit()
     return redirect(f"/worker/{id}")
 
 
@@ -220,18 +242,19 @@ def add_comments(id):
 @ app.route("/registration/<user_type>", methods=['GET', 'POST'])
 def register(user_type):
     """Handles User Registration"""
+
     cities = City.query.all()
-    if user_type == 'user':
+    uid = Type.query.filter(Type.name == user_type).first()
+    ut = uid.id
+
+    if user_type == 'client':
         form = RegistrationForm(cities=cities)
-        ut = 1
-    elif user_type == 'worker':
+    elif user_type == 'bluecollar':
         form = WorkerForm(cities=cities)
-        ut = 2
     else:
         return redirect("/")
 
     if form.validate_on_submit():
-
         # Create profile image file name
         filename = "default-icon.png"
         if form.profile.data:
@@ -255,18 +278,21 @@ def register(user_type):
                 "Password must be at least 8 characters with numbers, special characters, lowercase and uppercase!")
             return render_template("/users/registration.html", form=form, user_type=user_type)
 
-        # Verify User Email
-        if not user.valid_email():
-            form.email.errors.append(
-                "Please enter a valid email address!")
-            return render_template("/users/registration.html", form=form, user_type=user_type)
+        # # Verify User Email
+        # if not user.valid_email():
+        #     form.email.errors.append(
+        #         "Please enter a valid email address!")
+        #     return render_template("/users/registration.html", form=form, user_type=user_type)
 
         # Create user session
-        sess = user.register_user(form.facebook.data, form.mobile.data,
-                                  form.title.data, form.description.data)
+        if user_type == 'bluecollar':
+            sess = user.register_user(form.facebook.data, form.mobile.data,
+                                      form.title.data, form.description.data)
+        else:
+            sess = user.register_user()
         user.Add_User_Type(sess.id)
 
-        if user_type == "worker":
+        if user_type == "bluecollar":
             # Instantiate service class
             service = ServiceType(form)
             service.Add_Services(sess.id)
@@ -479,7 +505,7 @@ def check_email_if_existing(email):
 def send_new_message():
     """Handles sending of new messages via axios"""
 
-    if 'uid' not in session:
+    if not g.user:
         return ({'status': False})
     data = request.json
     new_message = Message(
