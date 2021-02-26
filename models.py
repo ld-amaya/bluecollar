@@ -51,8 +51,7 @@ class Type(db.Model):
 
     user = db.relationship("User",
                            secondary="user_types",
-                           backref="type",
-                           cascade="all")
+                           backref="type")
 
 
 class User_Type(db.Model):
@@ -61,10 +60,10 @@ class User_Type(db.Model):
     __tablename__ = "user_types"
 
     user_id = db.Column(db.Integer,
-                        db.ForeignKey("users.id"),
+                        db.ForeignKey("users.id", ondelete='cascade'),
                         primary_key=True)
     type_id = db.Column(db.Integer,
-                        db.ForeignKey("types.id"),
+                        db.ForeignKey("types.id", ondelete='cascade'),
                         primary_key=True)
 
 
@@ -108,7 +107,7 @@ class Comment(db.Model):
                    autoincrement=True)
     title = db.Column(db.Text)
     comment = db.Column(db.Text)
-    rating = db.Column(db.Integer)
+    rating = db.Column(db.Integer, default=0)
     user_from_id = db.Column(db.Integer,
                              db.ForeignKey("users.id", ondelete="cascade"),
                              nullable=False)
@@ -121,7 +120,9 @@ class Comment(db.Model):
         default=datetime.utcnow(),
     )
 
-    user = db.relationship("User", foreign_keys=[user_from_id])
+    user = db.relationship("User",
+                           foreign_keys=[user_from_id],
+                           backref="comments")
 
 
 class Message (db.Model):
@@ -207,7 +208,7 @@ class User(db.Model):
     profile = db.Column(db.Text, default=profile_pix)
     title = db.Column(db.String(100))
     description = db.Column(db.Text)
-
+    rating = db.Column(db.Integer)
     comment_from = db.relationship("User",
                                    secondary="comments",
                                    primaryjoin=(Comment.user_to_id == id),
@@ -229,8 +230,10 @@ class User(db.Model):
         """Authenticates user"""
 
         user = User.query.filter_by(email=email).first()
-        if user and bcrypt.check_password_hash(user.password, password):
-            return user
+        if user:
+            is_auth = bcrypt.check_password_hash(user.password, password)
+            if is_auth:
+                return user
         return False
 
 
