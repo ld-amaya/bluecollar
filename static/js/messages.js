@@ -19,12 +19,11 @@ async function sendMessage() {
             'text': $('#text').val()
         }
         const response = await axios.post(`${URL}/messages/send`, params)
-        if (response.data.status != False) {
+        if (response.data.status != "False") {
             loadChat(response)    
         } else {
-            window.location.href = "URL"
+            window.location.href = `${URL}`
         }
-        
     } catch (e) {
         console.log(e)
     }
