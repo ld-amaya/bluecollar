@@ -8,9 +8,13 @@
             <div class="card">
                 <img src="/static/images/profiles/{{user.profile}}" class ="card-img-top" alt="default image">
                 <h6 class ="mt-2 text-center">
-                    {% for i in range(ave-1) %}
-                        <i class="fas fa-star"></i>
-                    {% endfor %}
+                    {% if user.rating %}
+                        {% for i in range(user.rating) %}
+                            <i class="fas fa-star"></i>
+                        {% endfor %}
+                    {% else %}
+                        No Rating Yet
+                    {% endif %}
                 </h6>
                 <div class="card-body">
                     <h6 class = "text-center">{{user.first_name}} {{user.last_name}} </h6>
@@ -44,38 +48,40 @@
             {% else %}
                 <h2>No Title</h2>
             {% endif %}
-            {% if user.images %}
-                <div class = "carousel slide" id="albumSlides" data-ride ="carousel">
-                    <div class="carousel-inner">
-                        {% for image in user.images %}
-                            <div class="carousel-item">
-                                <img src="/static/images/uploads/{{image.name}}" class="d-block image_album" alt="{{image.name}}">
-                            </div>
-                        {% endfor %}
-                        <a href="#albumSlides" class= "carousel-control-prev" role="button" data-slide="prev">
-                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                            <span class="sr-only">Previous</span>
-                        </a>
-                        <a href="#albumSlides" class="carousel-control-next" role="button" data-slide="next">
-                            <span class="carousel-control-next-button" aria-hidden="true"></span>
-                            <span class="sr-only">Next</span>
-                        </a> 
+            <div class="album">
+                {% if user.images %}
+                
+                    <div class = "carousel slide" id="albumSlides" data-ride ="carousel">
+                        <div class="carousel-inner">
+                            {% for image in user.images %}
+                                <div class="carousel-item">
+                                    <img src="/static/images/uploads/{{image.name}}" class="d-block image_album" alt="{{image.name}}">
+                                </div>
+                            {% endfor %}
+                            <a href="#albumSlides" class= "carousel-control-prev" role="button" data-slide="prev">
+                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span class="sr-only">Previous</span>
+                            </a>
+                            <a href="#albumSlides" class="carousel-control-next" role="button" data-slide="next">
+                                <span class="carousel-control-next-button" aria-hidden="true"></span>
+                                <span class="sr-only">Next</span>
+                            </a> 
+                        </div>
                     </div>
-                </div>
-            {% else %}
-                <img src="/static/images/uploads/default-image.png" alt="">
-            {% endif %}
-            
-                <hr />
-                <h5 class="mt-3">Description</h5>
-                <p>
-                    {{user.description}}
-                </p>
-                <hr>
-                <h5 class="mt-3">Location</h5>
-                <p>
-                    <i class="fas fa-map-marker-alt"></i> <span> {{user.city.name}} </span>
-                </p>
+                {% else %}
+                    <img src="/static/images/uploads/default-image.png" alt="">
+                {% endif %}
+            </div>
+            <hr />
+            <h5 class="mt-3">Description</h5>
+            <p>
+                {{user.description}}
+            </p>
+            <hr>
+            <h5 class="mt-3">Location</h5>
+            <p>
+                <i class="fas fa-map-marker-alt"></i> <span> {{user.city.name}} </span>
+            </p>
             <hr />
             <div class="form-inline justify-content-between">
                 <h5 class = "mt-3">Comments</h5>
@@ -92,7 +98,7 @@
                         </div>
                         <div class="my-2 my-lg-0">
                             {% if comment.rating > 0 %}
-                                {% for i in range (comment.rating-1) %}
+                                {% for i in range (comment.rating) %}
                                     <i class="fas fa-star"></i>
                                 {% endfor %} <br/>
                             {% else %}
@@ -104,9 +110,7 @@
                         {{comment.title}}
                     </div>
                 </div>
-                <div>
-                    {{comment.comment}}
-                </div>
+                <div id="user_comments">{{comment.comment}}</div>
             {% endfor %}
         </div>
     </div>
