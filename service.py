@@ -17,31 +17,40 @@ class ServiceType():
 
         for s in services:
             db.session.delete(s)
+
+        # Get carpenter id
+        cid = Service.query.filter(Service.name == 'Carpenter').first()
         if self.carpenter:
             carpenter = User_Service(
                 user_id=user_id,
-                service_id=1
+                service_id=cid.id
             )
             db.session.add(carpenter)
 
+        # Get painter id
+        pid = Service.query.filter(Service.name == 'Painter').first()
         if self.painter:
             painter = User_Service(
                 user_id=user_id,
-                service_id=2
+                service_id=pid.id
             )
             db.session.add(painter)
 
+        # Get plumber id
+        plid = Service.query.filter(Service.name == 'Plumber').first()
         if self.plumber:
             plumber = User_Service(
                 user_id=user_id,
-                service_id=3
+                service_id=plid.id
             )
             db.session.add(plumber)
 
+        # Get plumber id
+        eid = Service.query.filter(Service.name == 'Electrician').first()
         if self.electrician:
             electrician = User_Service(
                 user_id=user_id,
-                service_id=4
+                service_id=eid.id
             )
             db.session.add(electrician)
 
