@@ -20,39 +20,48 @@
 
         <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
             <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
-            <li class="nav-item active">
-                <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">Link</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
-            </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a href="#" class ="dropdown-toggle nav-link mr-auto" id="services_dropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Services
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="services_dropdown">
+                        {% for service in g.services %}
+                            <a href="/view/{{service.name}}/{{service.id}}" class="dropdown-item" >{{service.name}}</a>    
+                        {% endfor %}
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Contact Us</a>
+                </li>
             </ul>
-            <login class="form-inline my-2 my-lg-0">
+            
+            <login class="navbar-nav form-inline my-2 my-lg-0">
                 {% if g.user %}
-                    <span  class ="mr-3" id="sesssionHeader">Hi, <span id="session">{{ g.user.first_name}}</span></span>
-                    <i class="far fa-bell mx-1 menu"></i>
-                    <a href="/messages" class="mx-1"> <i class="far fa-envelope menu"></i></a>
-                    <div class="nav-item dropdown">
-                        <a href="#" class ="nav-link dropdown-toggle" id ="profile_dropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="far fa-user-circle menu"></i></a>
+                    <span  class ="mr-1 nav-link mr-auto" id="sesssionHeader">Hi, <span id="session">{{ g.user.first_name}}</span></span>
+                    <a href="/" class = "mx-1 nav-link mr-auto"> <i class="fas fa-home menu"></i></a>
+                    <a href="/messages" class="mx-1 nav-link mr-auto"> <i class="far fa-envelope menu"></i></a>
+                    <div class="nav-item dropdown mr-auto">
+                        <a href="#" class ="dropdown-toggle nav-link mr-auto" id ="profile_dropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="far fa-user-circle menu"></i></a>
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="profile_dropdown">
                             <a href="/profile/edit" class="dropdown-item">Profile</a>
                             <a href="/image/upload" class="dropdown-item">Upload Images</a>
                             <a href="/password/edit" class="dropdown-item">Change Password</a>
                         </div>
                     </div>
-                    <a href="/logout"class ="mx-1" id = "logout"> <i class="fas fa-sign-out-alt menu"></i> </a>
+                    <a href="/logout"class ="mx-1 nav-link mr-auto" id = "logout"> <i class="fas fa-sign-out-alt menu"></i> </a>
                 {% else %}
                     {% if user_type %}
-                        <a href="/login"class ="btn btn-outline-primary btn-sm mr-1" id = "login"> Login </a>
+                        <a href="/login"class ="btn btn-outline-primary btn-sm mr-md-1 nav-link mr-auto px-2" id = "login"> Login </a>
                     {% else %}
-                        <button type ="button" class = "btn btn-outline-primary btn-sm mr-2" id="login">Login</button>
+                        <button type ="button" class = "btn btn-outline-primary btn-sm mr-2 nav-link mr-auto px-2" id="login">Login</button>
                     {% endif %}
-                    <input type="button" class ="btn btn-primary btn-sm ml-1" id="register" value ="Post Your Job">
+                    <input type="button" class ="btn btn-primary btn-sm ml-1 nav-link mr-auto px-2" id="register" value ="Register">
                 {% endif %}
             </login>
+            
         </div>
     </nav>
     <div class="jumbotron"></div>
