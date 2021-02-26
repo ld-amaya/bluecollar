@@ -10,7 +10,7 @@ API_URL = config('API_URL')
 
 class Registration():
 
-    def __init__(self, form,  user_type, filename):
+    def __init__(self, form,  ut, filename):
         """Instantiate user class"""
 
         self.first_name = form.first_name.data
@@ -18,7 +18,7 @@ class Registration():
         self.email = form.email.data
         self.password = form.password.data
         self.city_id = form.city.data
-        self.user_type = user_type
+        self.user_type = ut
         self.profile = filename
 
     def valid_email(self):
@@ -52,15 +52,6 @@ class Registration():
         db.session.add(user)
         db.session.commit()
 
-        # Add Service Type
-        if self.user_type == 'worker':
-            user_type = User_Type(
-                user_id=user.id,
-                type_id=2
-            )
-            db.session.add(user_type)
-            db.session.commit()
-
         return user
 
     def Add_User_Type(self, user_id):
@@ -71,35 +62,3 @@ class Registration():
         )
         db.session.add(user_type)
         db.session.commit()
-
-    # def Add_Services(self, user_id, carpenter, painter, plumber, electrician):
-    #     """Add services to user"""
-    #     if carpenter:
-    #         carpenter = User_Service(
-    #             user_id=user_id,
-    #             service_id=1
-    #         )
-    #         db.session.add(carpenter)
-
-    #     if painter:
-    #         painter = User_Service(
-    #             user_id=user_id,
-    #             service_id=2
-    #         )
-    #         db.session.add(painter)
-
-    #     if plumber:
-    #         plumber = User_Service(
-    #             user_id=user_id,
-    #             service_id=3
-    #         )
-    #         db.session.add(plumber)
-
-    #     if electrician:
-    #         electrician = User_Service(
-    #             user_id=user_id,
-    #             service_id=4
-    #         )
-    #         db.session.add(electrician)
-
-    #     db.session.commit()
