@@ -23,7 +23,7 @@ async function sendMessage() {
             loadChat(response)    
         } else {
             window.location.href = `${URL}`
-        }add
+        }
     } catch (e) {
         console.log(e)
     }
