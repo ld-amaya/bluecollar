@@ -14,6 +14,15 @@
                                 <img src="/static/images/profiles/default-icon.png" class ="card-img-top" alt="default image">
                             {% endif %}
                         </a>
+                        <h6 class ="mt-2 text-center">
+                            {% if carpenter.rating %}
+                                {% for i in range(carpenter.rating) %}
+                                    <i class="fas fa-star"></i>
+                                {% endfor %}
+                            {% else %}
+                                No Rating Yet
+                            {% endif %}
+                        </h6>
                         <div class="card-body">
                             <h6>{{carpenter.first_name}} {{carpenter.last_name}} </h6>
                             <p class="card-text">
@@ -36,32 +45,19 @@
                                 <img src="/static/images/profiles/default-icon.png" class ="card-img-top" alt="default image">
                             {% endif %}
                         </a>
+                        <h6 class ="mt-2 text-center">
+                            {% if painter.rating %}
+                                {% for i in range(painter.rating) %}
+                                    <i class="fas fa-star"></i>
+                                {% endfor %}
+                            {% else %}
+                                No Rating Yet
+                            {% endif %}
+                        </h6>
                         <div class="card-body">
                             <h6>{{painter.first_name}} {{painter.last_name}} </h6>
                             <p class="card-text">
                                 <a href="{{painter.facebook}}">  <img class="fb_logo" src="/static/images/fb_logo.svg" alt=""> </a> - Painter
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
-        <h2>Top Electrician</h2>
-        <div class="row">
-            {% for electrician in electricians %}
-                <div class="col-md-3 my-3">
-                    <div class="card">
-                        <a href="/worker/{{electrician.id}}">
-                            {% if electrician.profile %}
-                                <img src="/static/images/profiles/{{electrician.profile}}" class ="card-img-top" alt="default image">
-                            {% else %}
-                                <img src="/static/images/profiles/default-icon.png" class ="card-img-top" alt="default image">
-                            {% endif %}
-                        </a>
-                        <div class="card-body">
-                            <h6>{{electrician.first_name}} {{electrician.last_name}} </h6>
-                            <p class="card-text">
-                                <a href="{{electrician.facebook}}">  <img class="fb_logo" src="/static/images/fb_logo.svg" alt=""> </a> - Electrician
                             </p>
                         </div>
                     </div>
@@ -80,10 +76,50 @@
                                 <img src="/static/images/profiles/default-icon.png" class ="card-img-top" alt="default image">
                             {% endif %}
                         </a>    
+                        <h6 class ="mt-2 text-center">
+                            {% if plumber.rating %}
+                                {% for i in range(plumber.rating) %}
+                                    <i class="fas fa-star"></i>
+                                {% endfor %}
+                            {% else %}
+                                No Rating Yet
+                            {% endif %}
+                        </h6>
                         <div class="card-body">
                             <h5>{{plumber.first_name}} {{plumber.last_name}} </h5>
                             <p class="card-text">
                                 <a href="{{plumber.facebook}}">  <img class="fb_logo" src="/static/images/fb_logo.svg" alt=""> </a> - Plumber
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <h2>Top Electrician</h2>
+        <div class="row">
+            {% for electrician in electricians %}
+                <div class="col-md-3 my-3">
+                    <div class="card">
+                        <a href="/worker/{{electrician.id}}">
+                            {% if electrician.profile %}
+                                <img src="/static/images/profiles/{{electrician.profile}}" class ="card-img-top" alt="default image">
+                            {% else %}
+                                <img src="/static/images/profiles/default-icon.png" class ="card-img-top" alt="default image">
+                            {% endif %}
+                        </a>
+                        <h6 class ="mt-2 text-center">
+                            {% if electrician.rating %}
+                                {% for i in range(electrician.rating) %}
+                                    <i class="fas fa-star"></i>
+                                {% endfor %}
+                            {% else %}
+                                No Rating Yet
+                            {% endif %}
+                        </h6>
+                        <div class="card-body">
+                            <h6>{{electrician.first_name}} {{electrician.last_name}} </h6>
+                            <p class="card-text">
+                                <a href="{{electrician.facebook}}">  <img class="fb_logo" src="/static/images/fb_logo.svg" alt=""> </a> - Electrician
                             </p>
                         </div>
                     </div>
