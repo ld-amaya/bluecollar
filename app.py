@@ -323,6 +323,7 @@ def edit_user():
         form = WorkerProfileForm(obj=g.user)
     else:
         form = UserProfileForm(obj=g.user)
+
     job = JobForm()
     if form.validate_on_submit():
         city = request.form['cities']
@@ -405,7 +406,7 @@ def image_upload():
             return redirect("/image/upload")
         else:
             form.profile_pix.errors.append(
-                "An error occured while uploading profile picture, please try again!")
+                "An error occured while uploading profile pictureß, please try again!")
     return render_template("/users/image.html", form=form, album_form=album_form)
 
 
