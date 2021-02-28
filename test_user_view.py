@@ -1,6 +1,7 @@
 """User view test"""
 
 import os
+import io
 from unittest import TestCase
 from app import app, CURRENT_USER_KEY
 from flask import g
@@ -15,7 +16,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = (
 app.config['SQLALCHEMY_ECHO'] = False
 # Disable wtf csrf token validation
 app.config['WTF_CSRF_ENABLED'] = False
-PRESERVE_CONTEXT_ON_EXCEPTION = False
+
 
 db.drop_all()
 db.create_all()
@@ -26,6 +27,8 @@ class UserViewTest(TestCase):
 
     def setUp(self):
         """Create seed data"""
+        # Image File
+        self.Image = os.path.join("/static/images/logo.png")
 
         # Delete all possible querys
         User.query.delete()
@@ -53,6 +56,7 @@ class UserViewTest(TestCase):
         db.session.add(bluecollar)
         db.session.add(admin)
         db.session.commit()
+        self.bluecollar = bluecollar
 
         # Create user services
         service1 = Service(
@@ -121,6 +125,14 @@ class UserViewTest(TestCase):
         self.user1 = user1
         self.user2 = user2
 
+        # Add user type
+        user_type = User_Type(
+            user_id=self.user1.id,
+            type_id=self.bluecollar.id
+        )
+        db.session.add(user_type)
+        db.session.commit()
+
         # Assign User_Service
         us = User_Service(
             user_id=self.user1.id,
@@ -150,7 +162,7 @@ class UserViewTest(TestCase):
         db.session.rollback()
         return response
 
-    ############ Login/Logout and Registration Tests ##############################
+    ############ Login and Registration Tests ##############################
 
     def test_login(self):
         """Test user login"""
@@ -219,7 +231,7 @@ class UserViewTest(TestCase):
             self.assertEqual(response.status_code, 200)
             self.assertIn("<h2>Top Carpenters</h2>", html)
 
-    ############ Worker HTML Requests Tests ##############################
+    ############ worker.html Route Requests Tests ##############################
 
     def test_display_worker_page(self):
         """Test worker get request route"""
@@ -300,7 +312,7 @@ class UserViewTest(TestCase):
             self.assertEqual(response.status_code, 200)
             self.assertIn("<h2>Top Carpenters</h2>", html)
 
-    ############ Message HTML Get Requests Tests ##############################
+    ############ message.html Route Requests Tests ##############################
 
     def test_message_unauthenticated(self):
         """Test viewing messages page with unauthenticated shoule be redirected to home page"""
@@ -325,3 +337,114 @@ class UserViewTest(TestCase):
 
             self.assertEqual(response.status_code, 200)
             self.assertIn("General", html)
+
+    ############ profile.html Route Requests Tests ##############################
+
+    def test_worker_profile_unauthenticate(self):
+        """Test profile GET Request unauthenticated"""
+
+        with app.test_client() as client:
+
+            response = client.get(
+                "/profile/edit", follow_redirects=True)
+            html = response.get_data(as_text=True)
+
+            self.assertEqual(response.status_code, 200)
+            self.assertIn("Top Carpenter", html)
+
+    def test_worker_profile_authenticated(self):
+        """Test profile GET Request authenticated"""
+
+        with app.test_client() as client:
+
+            with client.session_transaction() as session:
+                session[CURRENT_USER_KEY] = self.user1.id
+                g.user = self.user1
+
+            response = client.get(
+                "/profile/edit", follow_redirects=True)
+            html = response.get_data(as_text=True)
+
+            self.assertEqual(response.status_code, 200)
+            self.assertIn(
+                '<input class="form-control" id="first_name" name="first_name" required type="text" value="Jose">', html)
+
+    def test_worker_edit_profile_authenticated(self):
+        """Test edit profile post request authenticated"""
+
+        with app.test_client() as client:
+
+            with client.session_transaction() as session:
+                session[CURRENT_USER_KEY] = self.user1.id
+                g.user = self.user1
+                cid = self.city.id
+
+            data = {
+                'first_name': 'Mang Jose',
+                'last_name': 'Marie',
+                'email': 'jm@user.com',
+                'facebook': 'https://facebook.com',
+                'mobile': '09171234567',
+                'cities': cid,
+                'title': 'Best Carpenter',
+                'description': 'I am the best carpenter'
+            }
+
+            response = client.post(
+                "/profile/edit", data=data, follow_redirects=True)
+            html = response.get_data(as_text=True)
+
+            self.assertEqual(response.status_code, 200)
+            self.assertIn(
+                '<input class="form-control" id="first_name" name="first_name" required type="text" value="Mang Jose">', html)
+            self.assertIn('Profile successfully updated', html)
+
+    ############ image.html Route Requests Tests ##############################
+
+    def test_image_upload_unauthenticated(self):
+        """Test viewing image upload page with unauthenticated shoule be redirected to home page"""
+
+        with app.test_client() as client:
+            response = client.get("/image/upload", follow_redirects=True)
+            html = response.get_data(as_text=True)
+
+            self.assertEqual(response.status_code, 200)
+            self.assertIn("Top Carpenter", html)
+
+    def test_image_upload_authenticated(self):
+        """Test image upload with authenticated user"""
+
+        with app.test_client() as client:
+
+            data = {
+                'profile_pix': (io.BytesIO(b"abcdef"), self.Image)
+            }
+            with client.session_transaction() as session:
+                session[CURRENT_USER_KEY] = self.user1.id
+                g.user = self.user1
+
+            response = client.post(
+                "/image/upload", data=data, follow_redirects=True, content_type='multipart/form-data')
+            html = response.get_data(as_text=True)
+
+            self.assertEqual(response.status_code, 200)
+            self.assertIn("Profile successfully changed", html)
+
+    def test_non_image_upload_authenticated(self):
+        """Test non-image upload for authenticated user"""
+
+        with app.test_client() as client:
+            data = {
+                'profile_pix': (io.BytesIO(b"abcdef"), "/static/images/fb_logo.svg")
+            }
+
+            with client.session_transaction() as session:
+                session[CURRENT_USER_KEY] = self.user1.id
+                g.user = self.user1
+
+            response = client.post(
+                "/image/upload", data=data, follow_redirects=True, content_type='multipart/form-data')
+            html = response.get_data(as_text=True)
+
+            self.assertEqual(response.status_code, 200)
+            self.assertIn("Images Only!", html)
