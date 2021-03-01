@@ -1,11 +1,11 @@
 import os
 import uuid
-import sys
-from models import db, Image
+from models import db, Album
 from flask import g
+from PIL import Image
 
 
-class Album():
+class MyAlbum():
 
     def __init__(self, path, ext):
         """Instantiate Image Class"""
@@ -15,16 +15,20 @@ class Album():
     def validate_profile(self, images):
         """Handles changing of profile image of user"""
         try:
-            file_ext = os.path.splitext(images.filename)[1]
-            filename = str(uuid.uuid4().hex) + file_ext
             # Remove current profile image stored
             if not g.user.profile == "default-icon.png":
                 try:
                     os.remove(self.path + g.user.profile)
                 except FileNotFoundError as error:
                     print("No image found!")
+
+            # Resize profile image using pillow
+            image = Image.open(images)
+            image.thumbnail((400, 400))
+            filename = str(uuid.uuid4().hex) + '.png'
+
             # Save image to folder
-            images.save(os.path.join(self.path + filename))
+            image.save(os.path.join(self.path + filename))
 
             # Update database
             g.user.profile = filename
@@ -37,15 +41,19 @@ class Album():
     def validate_album(self, images):
         """Handles image upload for bluecollar album"""
         for image in images:
-            # Upload image to folder
+
+            # Resize image
+            img = Image.open(image)
+            img.thumbnail((1200, 1200))
             file_ext = os.path.splitext(image.filename)[1]
             filename = str(uuid.uuid4().hex) + file_ext
-            image.save(os.path.join(self.path + filename))
+            img.save(os.path.join(self.path + filename))
+
             # add image link to database
-            album = Image(
-                name=filename,
+            add_image = Album(
+                filename=filename,
                 user_id=g.user.id
             )
-            db.session.add(album)
+            db.session.add(add_image)
             db.session.commit()
         return True
