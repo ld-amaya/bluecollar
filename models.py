@@ -208,7 +208,7 @@ class User(db.Model):
     profile = db.Column(db.Text, default=profile_pix)
     title = db.Column(db.String(100))
     description = db.Column(db.Text)
-    rating = db.Column(db.Integer)
+    rating = db.Column(db.Integer, default=0)
     comment_from = db.relationship("User",
                                    secondary="comments",
                                    primaryjoin=(Comment.user_to_id == id),
@@ -257,19 +257,19 @@ class City(db.Model):
         }
 
 
-class Image(db.Model):
+class Album(db.Model):
     """Create the image model"""
 
-    __tablename__ = "images"
+    __tablename__ = "albums"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.String(100),
-                     nullable=False)
+    filename = db.Column(db.String(200),
+                         nullable=False)
     user_id = db.Column(db.Integer,
                         db.ForeignKey("users.id", ondelete="CASCADE"),
                         nullable=False)
 
     user = db.relationship("User",
-                           backref="images")
+                           backref="albums")
 
 
 def connect_db(app):
