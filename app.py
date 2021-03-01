@@ -2,33 +2,34 @@ import os
 import uuid
 from flask import Flask, request, render_template, jsonify, flash, session, redirect, g
 from flask_debugtoolbar import DebugToolbarExtension
-from models import db, connect_db, User, City, Service, User_Service, Comment, Message, Image, Type
+from models import db, connect_db, User, City, Service, User_Service, Comment, Message, Album, Type
 from forms import RegistrationForm, WorkerForm, LoginForm, CommentForm, MessageForm, PasswordForm, UserProfileForm, WorkerProfileForm, JobForm, ImageForm, AlbumForm
 from registration import Registration
 from user import UserProfile
 from password import Password
 from service import ServiceType
-from album import Album
+from album import MyAlbum
 from mail import Email
 from datetime import datetime
+from decouple import config
+
 
 CURRENT_USER_KEY = "current_user"
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'iamlou'
+app.config['SECRET_KEY'] = config('SECRET')
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 
 toolbar = DebugToolbarExtension(app)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = (
-    os.environ.get('DATABASE_URL', 'postgres:///bluecollar-test'))
+    os.environ.get('DATABASE_URL', config('DATABASE_URI')))
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True
 
 # # File upload Settings
 app.config['UPLOAD_PROFILE_PATH'] = 'static/images/profiles/'
 app.config['UPLOAD_ALBUM_PATH'] = 'static/images/uploads/'
-# app.config['MAX_CONTENT_LENGTH'] = 1024*1024
 app.config['UPLOAD_EXTENSIONS'] = ['.jpg', '.png']
 
 
@@ -397,8 +398,8 @@ def image_upload():
     album_form = AlbumForm()
 
     if form.validate_on_submit():
-        img = Album(app.config['UPLOAD_PROFILE_PATH'],
-                    app.config['UPLOAD_EXTENSIONS'])
+        img = MyAlbum(app.config['UPLOAD_PROFILE_PATH'],
+                      app.config['UPLOAD_EXTENSIONS'])
         images = form.profile_pix.data
         if img.validate_profile(images):
             flash("Profile successfully changed", "success")
@@ -421,8 +422,8 @@ def album_upload():
     form = ImageForm()
 
     if album_form.validate_on_submit():
-        img = Album(app.config['UPLOAD_ALBUM_PATH'],
-                    app.config['UPLOAD_EXTENSIONS'])
+        img = MyAlbum(app.config['UPLOAD_ALBUM_PATH'],
+                      app.config['UPLOAD_EXTENSIONS'])
         images = album_form.album_pix.data
         if img.validate_album(images):
             flash("Album successfully changed", "success")
@@ -437,9 +438,16 @@ def album_upload():
 @app.route("/image/delete/<int:image_id>", methods=["POST"])
 def delete_image(image_id):
     """Handles deleting of image from the album"""
-    image = Image.query.get_or_404(image_id)
+    image = Album.query.get_or_404(image_id)
+    filename = image.filename
     db.session.delete(image)
     db.session.commit()
+
+    # Remove image from local File
+    try:
+        os.remove(app.config['UPLOAD_ALBUM_PATH'] + filename)
+    except FileNotFoundError as error:
+        print("No image found!")
     return redirect("/album/upload")
 
 ###### API REQUESTS ROUTES ###########################################
@@ -465,7 +473,7 @@ def retrieve_messages(id):
     return jsonify(messages)
 
 
-@app.route("/checkunread/<int:id>")
+@ app.route("/checkunread/<int:id>")
 def check_unread_messages(id):
     """Check for unread messages"""
 
@@ -483,7 +491,7 @@ def check_unread_messages(id):
     return ({'read': read})
 
 
-@app.route("/cities")
+@ app.route("/cities")
 def return_cities():
     """Handles City List API Request"""
 
@@ -502,7 +510,7 @@ def check_email_if_existing(email):
     return jsonify(data)
 
 
-@app.route("/messages/send", methods=["POST"])
+@ app.route("/messages/send", methods=["POST"])
 def send_new_message():
     """Handles sending of new messages via axios"""
 
