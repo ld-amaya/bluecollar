@@ -101,6 +101,7 @@ $('#send').click((e) => {
         sendMessage()
     }
 })
-
-bottomScroll()
+if (chat_container) {
+    bottomScroll()    
+}
 checkUnread()
