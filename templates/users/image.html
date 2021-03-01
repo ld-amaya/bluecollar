@@ -78,7 +78,7 @@
                     </form>
                     <sub-section id ="display_album">
                         <div class="row">
-                            {% for image in g.user.images %}
+                            {% for image in g.user.albums %}
                                 <div class="col-md-3">
                                     <div class="header">
                                         <form action="/image/delete/{{image.id}}" method = "POST">
@@ -89,7 +89,7 @@
                                     </div>
                                     <div class="card-body">
                                         <div class="card">
-                                            <img src="/static/images/uploads/{{image.name}}" class="card-img-top" alt="{{g.user.first_name}}">
+                                            <img src="/static/images/uploads/{{image.filename}}" class="card-img-top" alt="{{g.user.first_name}}">
                                         </div>
                                     </div>
                                 </div>

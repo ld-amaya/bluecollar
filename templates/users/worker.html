@@ -49,13 +49,12 @@
                 <h2>No Title</h2>
             {% endif %}
             <div class="album">
-                {% if user.images %}
-                
+                {% if user.albums %}
                     <div class = "carousel slide" id="albumSlides" data-ride ="carousel">
                         <div class="carousel-inner">
-                            {% for image in user.images %}
+                            {% for image in user.albums %}
                                 <div class="carousel-item">
-                                    <img src="/static/images/uploads/{{image.name}}" class="d-block image_album" alt="{{image.name}}">
+                                    <img src="/static/images/uploads/{{image.filename}}" class="d-block image_album" alt="{{image.filename}}">
                                 </div>
                             {% endfor %}
                             <a href="#albumSlides" class= "carousel-control-prev" role="button" data-slide="prev">
