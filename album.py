@@ -21,7 +21,6 @@ class MyAlbum():
                     os.remove(self.path + g.user.profile)
                 except FileNotFoundError as error:
                     print("No image found!")
-
             # Resize profile image using pillow
             image = Image.open(images)
             image.thumbnail((400, 400))
