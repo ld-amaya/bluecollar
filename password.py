@@ -5,8 +5,8 @@ from flask_bcrypt import Bcrypt
 
 bcrypt = Bcrypt()
 ACCESS_KEY = config('KEY')
-API_URL = 'http://apilayer.net/api/check'
-valid_data = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!#%*?&]{6,20}$"
+API_URL = config('API_URL')
+valid_data = '^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!#%*?&]{6,20}$'
 
 
 class Password():
@@ -14,7 +14,7 @@ class Password():
     def __init__(self, form):
         """Instantiate Password Class"""
 
-        self.password = form.password.data
+        self.password = form.new_password.data
 
     def valid_password(self):
         """Handles password validation if it meets criteria"""
