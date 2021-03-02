@@ -265,7 +265,7 @@ class Album(db.Model):
     filename = db.Column(db.String(200),
                          nullable=False)
     user_id = db.Column(db.Integer,
-                        db.ForeignKey("users.id", ondelete="CASCADE"),
+                        db.ForeignKey("users.id", ondelete="cascade"),
                         nullable=False)
 
     user = db.relationship("User",
