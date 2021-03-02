@@ -10,6 +10,7 @@ from password import Password
 from service import ServiceType
 from album import MyAlbum
 from mail import Email
+from comment import UserComment
 from datetime import datetime
 from decouple import config
 
@@ -213,28 +214,10 @@ def add_comments(id):
     form = CommentForm()
     rating = request.form['rating']
     if form.validate_on_submit():
-        comment = Comment(
-            title=form.title.data,
-            comment=form.comment.data,
-            rating=rating,
-            user_from_id=g.user.id,
-            user_to_id=id
-        )
-        db.session.add(comment)
-        db.session.commit()
-    ratings = Comment.query.filter(Comment.user_to_id == id).all()
-    rate = 0
-    tot = 0
-    ave = 0
-    for r in ratings:
-        if r.rating:
-            tot += 1
-            rate += r.rating
-    ave = rate / tot
-    user = User.query.get_or_404(id)
-    user.rating = ave
-    db.session.add(user)
-    db.session.commit()
+        uc = UserComment(form, rating, id)
+        if uc.add_comment():
+            if uc.add_rating():
+                flash("Comment and Rating successfully added!")
     return redirect(f"/worker/{id}")
 
 
@@ -396,7 +379,6 @@ def image_upload():
 
     form = ImageForm()
     album_form = AlbumForm()
-
     if form.validate_on_submit():
         img = MyAlbum(app.config['UPLOAD_PROFILE_PATH'],
                       app.config['UPLOAD_EXTENSIONS'])

@@ -14,32 +14,29 @@ class MyAlbum():
 
     def validate_profile(self, images):
         """Handles changing of profile image of user"""
-        # try:
-        # Remove current profile image stored
-        if not g.user.profile == "default-icon.png":
-            try:
-                os.remove(self.path + g.user.profile)
-            except FileNotFoundError as error:
-                print("No image found!")
-
-        # Resize profile image using pillow
         try:
-            image = Image.open(images)
-        except UnidentifiedImageError as error:
-            image = Image.open(images.filename)
-        image.thumbnail((400, 400))
-        filename = str(uuid.uuid4().hex) + '.png'
+            # Remove current profile image stored
+            if not g.user.profile == "default-icon.png":
+                try:
+                    os.remove(self.path + g.user.profile)
+                except FileNotFoundError as error:
+                    print("No image found!")
 
-        # Save image to folder
-        image.save(os.path.join(self.path + filename))
+            # Resize profile image using pillow
+            try:
+                image = Image.open(images)
+            except UnidentifiedImageError as error:
+                image = Image.open(images.filename)
+            image.thumbnail((400, 400))
+            filename = str(uuid.uuid4().hex) + '.png'
 
-        # Update database
-        g.user.profile = filename
-        db.session.add(g.user)
-        db.session.commit()
-        return True
-        # except:
-        #     return False
+            # Save image to folder
+            image.save(os.path.join(self.path + filename))
+
+            # Update database
+            return filename
+        except:
+            return "default-icon.png"
 
     def validate_album(self, images):
         """Handles image upload for bluecollar album"""
