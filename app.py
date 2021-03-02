@@ -18,7 +18,7 @@ from decouple import config
 CURRENT_USER_KEY = "current_user"
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', config('SECRET'))
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'iamlou')
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 
 toolbar = DebugToolbarExtension(app)
