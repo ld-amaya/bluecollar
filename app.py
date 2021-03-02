@@ -258,10 +258,10 @@ def register(user_type):
         uid = Type.query.filter(Type.name == user_type).first()
         ut = uid.id
         # Verify User Email
-        user = Registration(form, ut, filename)
-        if not user.valid_email():
-            form.email.errors.append("Please enter a valid email address!")
-            return render_template("/users/registration.html", form=form, user_type=user_type)
+        # user = Registration(form, ut, filename)
+        # if not user.valid_email():
+        #     form.email.errors.append("Please enter a valid email address!")
+        #     return render_template("/users/registration.html", form=form, user_type=user_type)
 
         # Create user session
         if user_type == 'bluecollar':
