@@ -6,7 +6,7 @@ from flask_bcrypt import Bcrypt
 
 bcrypt = Bcrypt()
 ACCESS_KEY = os.environ.get('API_KEY', '196f3c50ef5d095637d9134e731ac22c')
-API_URL = config('API_URL')
+API_URL = 'http://apilayer.net/api/check'
 
 
 class Registration():
