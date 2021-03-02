@@ -2,7 +2,7 @@ import os
 import uuid
 from models import db, Album
 from flask import g
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
 
 
 class MyAlbum():
@@ -14,28 +14,32 @@ class MyAlbum():
 
     def validate_profile(self, images):
         """Handles changing of profile image of user"""
+        # try:
+        # Remove current profile image stored
+        if not g.user.profile == "default-icon.png":
+            try:
+                os.remove(self.path + g.user.profile)
+            except FileNotFoundError as error:
+                print("No image found!")
+
+        # Resize profile image using pillow
         try:
-            # Remove current profile image stored
-            if not g.user.profile == "default-icon.png":
-                try:
-                    os.remove(self.path + g.user.profile)
-                except FileNotFoundError as error:
-                    print("No image found!")
-            # Resize profile image using pillow
             image = Image.open(images)
-            image.thumbnail((400, 400))
-            filename = str(uuid.uuid4().hex) + '.png'
+        except UnidentifiedImageError as error:
+            image = Image.open(images.filename)
+        image.thumbnail((400, 400))
+        filename = str(uuid.uuid4().hex) + '.png'
 
-            # Save image to folder
-            image.save(os.path.join(self.path + filename))
+        # Save image to folder
+        image.save(os.path.join(self.path + filename))
 
-            # Update database
-            g.user.profile = filename
-            db.session.add(g.user)
-            db.session.commit()
-            return True
-        except:
-            return False
+        # Update database
+        g.user.profile = filename
+        db.session.add(g.user)
+        db.session.commit()
+        return True
+        # except:
+        #     return False
 
     def validate_album(self, images):
         """Handles image upload for bluecollar album"""
