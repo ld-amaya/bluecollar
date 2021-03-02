@@ -5,8 +5,7 @@ import io
 from unittest import TestCase
 from app import app, CURRENT_USER_KEY
 from flask import g
-from models import db, connect_db, User, Service, User_Service, Comment, Message, Type, Job, City, User_Type
-from bs4 import BeautifulSoup
+from models import db, User, Service, User_Service, Comment, Message, Type, Job, City, User_Type
 from flask_bcrypt import Bcrypt
 
 bcrypt = Bcrypt()
@@ -28,7 +27,7 @@ class UserViewTest(TestCase):
     def setUp(self):
         """Create seed data"""
         # Image File
-        self.Image = os.path.join("/static/images/logo.png")
+        self.Image = os.path.join('logo.png')
 
         # Delete all possible querys
         User.query.delete()
@@ -419,6 +418,7 @@ class UserViewTest(TestCase):
             data = {
                 'profile_pix': (io.BytesIO(b"abcdef"), self.Image)
             }
+
             with client.session_transaction() as session:
                 session[CURRENT_USER_KEY] = self.user1.id
                 g.user = self.user1
@@ -429,6 +429,9 @@ class UserViewTest(TestCase):
 
             self.assertEqual(response.status_code, 200)
             self.assertIn("Profile successfully changed", html)
+
+            # Remove image form file
+            os.remove('static/images/profiles/' + g.user.profile)
 
     def test_non_image_upload_authenticated(self):
         """Test non-image upload for authenticated user"""
