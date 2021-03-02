@@ -3,7 +3,6 @@ from wtforms.validators import InputRequired, Email, Length, Optional
 from wtforms import StringField, PasswordField, SelectField, IntegerField, FileField, BooleanField, TextAreaField, MultipleFileField
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired, FileAllowed
-from werkzeug.utils import secure_filename
 
 
 class LoginForm(FlaskForm):

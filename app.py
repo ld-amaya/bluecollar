@@ -217,7 +217,7 @@ def add_comments(id):
         uc = UserComment(form, rating, id)
         if uc.add_comment():
             if uc.add_rating():
-                flash("Comment and Rating successfully added!")
+                flash("Comment and Rating successfully added, Thank you!")
     return redirect(f"/worker/{id}")
 
 
@@ -228,8 +228,6 @@ def register(user_type):
     """Handles User Registration"""
 
     cities = City.query.all()
-    uid = Type.query.filter(Type.name == user_type).first()
-    ut = uid.id
 
     if user_type == 'client':
         form = RegistrationForm(cities=cities)
@@ -242,18 +240,12 @@ def register(user_type):
         # Create profile image file name
         filename = "default-icon.png"
         if form.profile.data:
-            profile = form.profile.data
-            file_ext = os.path.splitext(profile.filename)[1]
-            filename = str(uuid.uuid4().hex) + file_ext
+            img = MyAlbum(app.config['UPLOAD_PROFILE_PATH'],
+                          app.config['UPLOAD_EXTENSIONS'])
+            images = form.profile_pix.data
+            filename = img.validate_profile(images)
 
-            # Validate Profile Picture
-            if not Validate_Image(filename):
-                form.profile.errors.append(
-                    "Invalid file extension ('.jpg', '.png'")
-                return render_template("/users/registration.html", form=form, user_type=user_type)
-
-        # Instantiate user and password class
-        user = Registration(form, ut, filename)
+        # Instantiate password class
         password = Password(form)
 
         # Verify password format
@@ -262,35 +254,34 @@ def register(user_type):
                 "Password must be at least 8 characters with numbers, special characters, lowercase and uppercase!")
             return render_template("/users/registration.html", form=form, user_type=user_type)
 
-        # # Verify User Email
-        # if not user.valid_email():
-        #     form.email.errors.append(
-        #         "Please enter a valid email address!")
-        #     return render_template("/users/registration.html", form=form, user_type=user_type)
+        # Get user type
+        uid = Type.query.filter(Type.name == user_type).first()
+        ut = uid.id
+        # Verify User Email
+        user = Registration(form, ut, filename)
+        if not user.valid_email():
+            form.email.errors.append("Please enter a valid email address!")
+            return render_template("/users/registration.html", form=form, user_type=user_type)
 
         # Create user session
         if user_type == 'bluecollar':
             sess = user.register_user(form.facebook.data, form.mobile.data,
                                       form.title.data, form.description.data)
-        else:
-            sess = user.register_user()
-        user.Add_User_Type(sess.id)
-
-        if user_type == "bluecollar":
-            # Instantiate service class
             service = ServiceType(form)
             service.Add_Services(sess.id)
+        else:
+            sess = user.register_user()
 
-        # Upload profile picture
-        if form.profile.data:
-            profile.save(os.path.join("static/images/profiles/") + filename)
+        # Add user type
+        user.Add_User_Type(sess.id)
 
         # Create user session
         login_user(sess)
 
-        # Send email verification to user
+        # # Send email verification to user
         # sendMail = Email(g.user.email)
         # sendMail.VerifyMail()
+
         return redirect("/")
 
     return render_template("/users/registration.html", form=form, user_type=user_type)
@@ -357,7 +348,7 @@ def password_edit():
                 "Passowrd must contain special characters")
             form.confirm_password.errors.append(
                 "Password must contain lowercase and uppercase")
-            return redirect("/users/password.html", form=form)
+            return render_template("/users/password.html", form=form)
 
         # Verify login
         is_valid = User.login(g.user.email, form.password.data)
@@ -383,7 +374,11 @@ def image_upload():
         img = MyAlbum(app.config['UPLOAD_PROFILE_PATH'],
                       app.config['UPLOAD_EXTENSIONS'])
         images = form.profile_pix.data
-        if img.validate_profile(images):
+        filename = img.validate_profile(images)
+        if filename:
+            g.user.profile = filename
+            db.session.add(g.user)
+            db.session.commit()
             flash("Profile successfully changed", "success")
             # redirect to self to avoid form resubmission
             return redirect("/image/upload")
