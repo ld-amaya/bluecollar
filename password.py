@@ -12,10 +12,10 @@ valid_data = '^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!#%*?&]{
 
 class Password():
 
-    def __init__(self, form):
+    def __init__(self, password):
         """Instantiate Password Class"""
 
-        self.password = form.new_password.data
+        self.password = password
 
     def valid_password(self):
         """Handles password validation if it meets criteria"""

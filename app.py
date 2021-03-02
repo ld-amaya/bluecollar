@@ -246,7 +246,7 @@ def register(user_type):
             filename = img.validate_profile(images)
 
         # Instantiate password class
-        password = Password(form)
+        password = Password(form.password.data)
 
         # Verify password format
         if not password.valid_password():
@@ -258,10 +258,10 @@ def register(user_type):
         uid = Type.query.filter(Type.name == user_type).first()
         ut = uid.id
         # Verify User Email
-        # user = Registration(form, ut, filename)
-        # if not user.valid_email():
-        #     form.email.errors.append("Please enter a valid email address!")
-        #     return render_template("/users/registration.html", form=form, user_type=user_type)
+        user = Registration(form, ut, filename)
+        if not user.valid_email():
+            form.email.errors.append("Please enter a valid email address!")
+            return render_template("/users/registration.html", form=form, user_type=user_type)
 
         # Create user session
         if user_type == 'bluecollar':
@@ -338,7 +338,7 @@ def password_edit():
             return render_template("/users/password.html", form=form)
 
         # instantiate password class and verify password validity
-        password = Password(form)
+        password = Password(new_pass)
         if not password.valid_password():
             form.confirm_password.errors.append(
                 "Password must be at least 8 characters")
