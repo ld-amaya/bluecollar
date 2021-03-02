@@ -1,10 +1,11 @@
+import os
 import requests
 from models import db, User, User_Type, Type, User_Service
 from decouple import config
 from flask_bcrypt import Bcrypt
 
 bcrypt = Bcrypt()
-ACCESS_KEY = config('KEY')
+ACCESS_KEY = os.environ.get('API_KEY', config('KEY'))
 API_URL = config('API_URL')
 
 
