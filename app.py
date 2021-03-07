@@ -231,7 +231,7 @@ def confirm_email(token):
             max_age=expiration
         )
         user = User.query.filter_by(email=email).first_or_404()
-        print(user)
+
         if user.confirmed:
             flash("Email already confirmed, please login!", "success")
         else:
