@@ -222,7 +222,7 @@ def add_comments(id):
 
 @app.route("/confirm/email/<token>", methods=["POST"])
 def confirm_email(token):
-    (token, expiration=3600):
+    expiration = 3600
     serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
     try:
         email = serializer.loads(
@@ -230,9 +230,19 @@ def confirm_email(token):
             salt=app.config['SECURITY_PASSWORD_SALT'],
             max_age=expiration
         )
+        user = User.query.filter_by(email=email).first_or_404()
+        if user.confirmed:
+            flash("Email already confirmed, please login!", "success")
+        else:
+            user.confirmed = True
+            user.confirmed_date = datetime.utcnow()
+            db.session.add(user)
+            db.session.commit()
+            flash("Thank you for confirming your account", "success")
+        return redirect("/")
     except:
-        return False
-    return email
+        return redirect("/")
+
 
 #################### GET, POST ROUTES ###########################################
 
