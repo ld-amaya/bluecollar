@@ -4,27 +4,28 @@ from flask import Flask, request, render_template, jsonify, flash, session, redi
 from flask_debugtoolbar import DebugToolbarExtension
 from models import db, connect_db, User, City, Service, User_Service, Comment, Message, Album, Type
 from forms import RegistrationForm, WorkerForm, LoginForm, CommentForm, MessageForm, PasswordForm, UserProfileForm, WorkerProfileForm, JobForm, ImageForm, AlbumForm
+from itsdangerous import URLSafeTimedSerializer
 from registration import Registration
 from user import UserProfile
 from password import Password
 from service import ServiceType
 from album import MyAlbum
-from mail import Email
 from comment import UserComment
 from datetime import datetime
 from decouple import config
+from mail import Mail
 
 
 CURRENT_USER_KEY = "current_user"
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'iamlou')
+app.config['SECRET_KEY'] = config('SECRET_KEY')
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
+app.config['SECURITY_PASSWORD_SALT'] = config('SECRET_SALT')
 
 toolbar = DebugToolbarExtension(app)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = (
-    os.environ.get('DATABASE_URL', 'postgres:///bluecollar'))
+app.config['SQLALCHEMY_DATABASE_URI'] = config('DATABASE_URL',)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True
 
@@ -221,6 +222,20 @@ def add_comments(id):
     return redirect(f"/worker/{id}")
 
 
+# @app.route("/confirm/email/<token>", methods=["POST"])
+# def confirm_email(token):
+#     (token, expiration=3600):
+#     serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+#     try:
+#         email = serializer.loads(
+#             token,
+#             salt=app.config['SECURITY_PASSWORD_SALT'],
+#             max_age=expiration
+#         )
+#     except:
+#         return False
+#     return email
+
 #################### GET, POST ROUTES ###########################################
 
 @ app.route("/registration/<user_type>", methods=['GET', 'POST'])
@@ -259,9 +274,9 @@ def register(user_type):
         ut = uid.id
         # Verify User Email
         user = Registration(form, ut, filename)
-        if not user.valid_email():
-            form.email.errors.append("Please enter a valid email address!")
-            return render_template("/users/registration.html", form=form, user_type=user_type)
+        # if not user.valid_email():
+        #     form.email.errors.append("Please enter a valid email address!")
+        #     return render_template("/users/registration.html", form=form, user_type=user_type)
 
         # Create user session
         if user_type == 'bluecollar':
@@ -272,15 +287,20 @@ def register(user_type):
         else:
             sess = user.register_user()
 
-        # Add user type
-        user.Add_User_Type(sess.id)
-
         # Create user session
         login_user(sess)
 
-        # # Send email verification to user
-        sendMail = Email(g.user.email)
-        sendMail.VerifyMail()
+        # Add user type
+        user.Add_User_Type(sess.id)
+
+        # Send email verification to user
+        mail = Mail(sess.email, sess.first_name)
+        serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+        token = serializer.dumps(
+            sess.email, salt=app.config['SECURITY_PASSWORD_SALT'])
+        result = mail.send_confirmation_email(token)
+        if result == 200:
+            flash("Please confirm you email to activate account!", "success")
 
         return redirect("/")
 
