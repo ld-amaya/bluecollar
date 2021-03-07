@@ -1,4 +1,4 @@
-const URL = "http://127.0.0.1:5000"
+const URL = "https://raketraket.herokuapps.com"
 const chat_container = document.getElementById('chat_container')
 const chats = document.querySelectorAll('.chat')
     

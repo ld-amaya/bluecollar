@@ -1,5 +1,4 @@
 import os
-import uuid
 from flask import Flask, request, render_template, jsonify, flash, session, redirect, g
 from flask_debugtoolbar import DebugToolbarExtension
 from models import db, connect_db, User, City, Service, User_Service, Comment, Message, Album, Type
@@ -221,21 +220,22 @@ def add_comments(id):
     return redirect(f"/worker/{id}")
 
 
-# @app.route("/confirm/email/<token>", methods=["POST"])
-# def confirm_email(token):
-#     (token, expiration=3600):
-#     serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
-#     try:
-#         email = serializer.loads(
-#             token,
-#             salt=app.config['SECURITY_PASSWORD_SALT'],
-#             max_age=expiration
-#         )
-#     except:
-#         return False
-#     return email
+@app.route("/confirm/email/<token>", methods=["POST"])
+def confirm_email(token):
+    (token, expiration=3600):
+    serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+    try:
+        email = serializer.loads(
+            token,
+            salt=app.config['SECURITY_PASSWORD_SALT'],
+            max_age=expiration
+        )
+    except:
+        return False
+    return email
 
 #################### GET, POST ROUTES ###########################################
+
 
 @ app.route("/registration/<user_type>", methods=['GET', 'POST'])
 def register(user_type):
