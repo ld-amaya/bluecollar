@@ -1,4 +1,4 @@
-const URL = "https://raketraket.herokuapp.com"
+const URL ='https://raketraket.herukoapp.com'
 const chat_container = document.getElementById('chat_container')
 const chats = document.querySelectorAll('.chat')
     
@@ -18,7 +18,7 @@ async function sendMessage() {
             'id': $('#chatmate').data('id'),
             'text': $('#text').val()
         }
-        const response = await axios.post(`${URL}/messages/send`, params)
+        const response = await axios.post('/messages/send', params)
         if (response.data.status != "False") {
             loadChat(response)    
         } else {
@@ -31,7 +31,7 @@ async function sendMessage() {
 
 async function checkMessages(id) {
     try {
-        const response = await axios.get(`${URL}/checkunread/${id}`) 
+        const response = await axios.get(`/checkunread/${id}`) 
         if (!response.data.read) {
             $(`#${id}`).addClass("font-weight-bold")
         }

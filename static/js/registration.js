@@ -1,6 +1,3 @@
-const URL = "https://raketraket.herokuapp.com"
-
-
 async function verifyEmail(email) {
     let res = await axios.get(`/email/${email}`)
     if (res.data.length > 0) {

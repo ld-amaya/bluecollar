@@ -236,7 +236,7 @@ def confirm_email(token):
             flash("Email already confirmed, please login!", "success")
         else:
             user.confirmed = True
-            user.confirmed_date = datetime.utcnow()
+            user.confirmed_on = datetime.utcnow()
             db.session.add(user)
             db.session.commit()
             flash("Thank you for confirming your account", "success")
