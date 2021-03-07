@@ -233,7 +233,7 @@ def confirm_email(token):
         user = User.query.filter_by(email=email).first_or_404()
 
         if user.confirmed:
-            flash("Email already confirmed, please login!", "success")
+            flash("Email already confirmed!", "success")
         else:
             user.confirmed = True
             user.confirmed_on = datetime.utcnow()
