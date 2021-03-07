@@ -4,3 +4,4 @@ venv/
 static/images/
 .env
 logo.png
+mailjet.py
