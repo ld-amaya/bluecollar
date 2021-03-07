@@ -5,7 +5,7 @@ const chats = document.querySelectorAll('.chat')
 async function loadMessages(id) {
     // Revisit this approach lou
     try {
-        const response = await axios.get(`${URL}/messages/retrieve/${id}`)
+        const response = await axios.get(`/messages/retrieve/${id}`)
         loadChat(response)
     } catch (e) {
         console.log(e)
