@@ -1,6 +1,5 @@
 import os
 from mailjet_rest import Client
-from flask import current_app as app
 
 api_key = '6282c9420fb0509aa854b43b4a1fd188'
 api_secret = 'c43f72aafabf6c3c7055947545b5da39'
