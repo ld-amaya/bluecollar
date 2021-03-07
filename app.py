@@ -31,7 +31,7 @@ app.config['SQLALCHEMY_ECHO'] = True
 
 # # File upload Settings
 app.config['UPLOAD_PROFILE_PATH'] = 'static/images/profiles/'
-app.config['UPLOAD_ALBUM_PATH'] = '/static/images/uploads/'
+app.config['UPLOAD_ALBUM_PATH'] = 'static/images/uploads/'
 app.config['UPLOAD_EXTENSIONS'] = ['.jpg', '.png']
 
 connect_db(app)

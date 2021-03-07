@@ -1,7 +1,6 @@
 .DS_Store
 __pycache__/
 venv/
-static/images/
 .env
 logo.png
 mailjet.py
