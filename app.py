@@ -21,7 +21,7 @@ CURRENT_USER_KEY = "current_user"
 app = Flask(__name__)
 app.config['SECRET_KEY'] = config('SECRET_KEY')
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
-app.config['SECURITY_PASSWORD_SALT'] = '4_My_b3@uT1ful_aSh'
+app.config['SECURITY_PASSWORD_SALT'] = config('SECRET_SALT')
 
 toolbar = DebugToolbarExtension(app)
 
