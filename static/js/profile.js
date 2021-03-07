@@ -1,8 +1,8 @@
-const URL = "https://raketraket.herokuapps.com"
+const URL = "https://raketraket.herokuapp.com"
 
 async function loadCities() {
     try {
-        const response = await axios.get(`${URL}/cities`)
+        const response = await axios.get('/cities')
         cities = response.data.cities
         cities.forEach((city) => {
             $('#cities').append(`<option value=${city.id}>${city.city}</option>`)
