@@ -1,4 +1,4 @@
-const URL = "https://raketraket.herokuapps.com"
+const URL = "https://raketraket.herokuapp.com"
 const chat_container = document.getElementById('chat_container')
 const chats = document.querySelectorAll('.chat')
     

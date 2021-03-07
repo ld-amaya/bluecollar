@@ -1,4 +1,4 @@
-const URL = "https://raketraket.herokuapps.com"
+const URL = "https://raketraket.herokuapp.com"
 
 
 async function verifyEmail(email) {
