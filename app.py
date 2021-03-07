@@ -220,7 +220,7 @@ def add_comments(id):
     return redirect(f"/worker/{id}")
 
 
-@app.route("/confirm/email/<token>", methods=["POST"])
+@app.route("/confirm/email/<token>", methods=["GET", "POST"])
 def confirm_email(token):
     expiration = 3600
     serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
