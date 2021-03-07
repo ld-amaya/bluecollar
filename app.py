@@ -12,7 +12,6 @@ from service import ServiceType
 from album import MyAlbum
 from comment import UserComment
 from datetime import datetime
-from dotenv import load_dotenv
 from decouple import config
 from mail import Mail
 
@@ -20,15 +19,13 @@ from mail import Mail
 CURRENT_USER_KEY = "current_user"
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.environ.get(
-    'SECRET_KEY', '09KJ-9kY&-)9ky-2834-89dK')
+app.config['SECRET_KEY'] = config('SECRET_KEY')
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
-app.config['SECURITY_PASSWORD_SALT'] = 'My_b3@uT1ful_aSh'
+app.config['SECURITY_PASSWORD_SALT'] = config('SECRET_SALT')
 
 toolbar = DebugToolbarExtension(app)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = (
-    os.environ.get('DATABASE_URL', 'postgres:///bluecollar'))
+app.config['SQLALCHEMY_DATABASE_URI'] = config('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True
 
