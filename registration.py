@@ -24,12 +24,25 @@ class Registration():
 
     def valid_email(self):
         """Handles email verification using MailBoxLayer API"""
-        api_data = requests.get(
-            f"{API_URL}?access_key={ACCESS_KEY}&email={self.email}")
-        data = api_data.json()
-        if data['mx_found']:
+        try:
+            api_data = requests.get(
+                f"{API_URL}?access_key={ACCESS_KEY}&email={self.email}")
+            data = api_data.json()
+            if data['mx_found']:
+                return True
+            return False
+        except:
+            # Skip for now if there is an error on API retrieval
+            print('###############################################')
+            print('###############################################')
+            print('###############################################')
+            print('###############################################')
+            print('MX Error')
+            print('###############################################')
+            print('###############################################')
+            print('###############################################')
+            print('###############################################')
             return True
-        return False
 
     def register_user(self, facebook="", mobile="", title="", description=""):
         """Handles user registration"""
@@ -52,7 +65,6 @@ class Registration():
         )
         db.session.add(user)
         db.session.commit()
-
         return user
 
     def Add_User_Type(self, user_id):

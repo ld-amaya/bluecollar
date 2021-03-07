@@ -209,6 +209,9 @@ class User(db.Model):
     title = db.Column(db.String(100))
     description = db.Column(db.Text)
     rating = db.Column(db.Integer, default=0)
+    confirmed = db.Column(db.Boolean,
+                          default=False)
+    confirmed_on = db.Column(db.DateTime)
     comment_from = db.relationship("User",
                                    secondary="comments",
                                    primaryjoin=(Comment.user_to_id == id),
