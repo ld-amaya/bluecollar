@@ -47,6 +47,8 @@ class MyAlbum():
             img.thumbnail((1200, 1200))
             file_ext = os.path.splitext(image.filename)[1]
             filename = str(uuid.uuid4().hex) + file_ext
+
+            # Save image to folder
             img.save(os.path.join(self.path + filename))
 
             # add image link to database

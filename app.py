@@ -31,9 +31,8 @@ app.config['SQLALCHEMY_ECHO'] = True
 
 # # File upload Settings
 app.config['UPLOAD_PROFILE_PATH'] = 'static/images/profiles/'
-app.config['UPLOAD_ALBUM_PATH'] = 'static/images/uploads/'
+app.config['UPLOAD_ALBUM_PATH'] = '/static/images/uploads/'
 app.config['UPLOAD_EXTENSIONS'] = ['.jpg', '.png']
-
 
 connect_db(app)
 
@@ -274,9 +273,9 @@ def register(user_type):
         ut = uid.id
         # Verify User Email
         user = Registration(form, ut, filename)
-        # if not user.valid_email():
-        #     form.email.errors.append("Please enter a valid email address!")
-        #     return render_template("/users/registration.html", form=form, user_type=user_type)
+        if not user.valid_email():
+            form.email.errors.append("Please enter a valid email address!")
+            return render_template("/users/registration.html", form=form, user_type=user_type)
 
         # Create user session
         if user_type == 'bluecollar':
