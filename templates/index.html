@@ -2,6 +2,7 @@
 
 {% block title %} Blue Collar Jobs {% endblock %}
 {% block content %}
+    {% include "_flash.html" %}
     <h2>Top Carpenters</h2>
         <div class="row">
             {% for carpenter in carpenters %}
