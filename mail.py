@@ -1,45 +1,41 @@
-import smtplib
-import ssl
+import os
+from mailjet_rest import Client
+from flask import current_app as app
 
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+api_key = '6282c9420fb0509aa854b43b4a1fd188'
+api_secret = 'c43f72aafabf6c3c7055947545b5da39'
 
 
-class Email():
+class Mail():
 
-    def __init__(self, user_email):
-        self.user_email = user_email
-        self.port = 445
-        self.email = "rakteroconfirmation@gmail.com"
-        self.password = input('Ad0bZmpqCo1YSRvw')
+    def __init__(self, email, first_name):
+        self.email = email
+        self.first_name = first_name
 
-    def VerifyMail(self):
+    def send_confirmation_email(self, token):
+        """Handles sending of email"""
 
-        message = MIMEMultipart("alternative")
+        mailjet = Client(auth=(api_key, api_secret), version='v3.1')
+        data = {
+            'Messages': [
+                {
+                    "From": {
+                        "Email": "raket@phstudies.com",
+                        "Name": "Raket"
+                    },
+                    "To": [
+                        {
+                            "Email": self.email,
+                            "Name": self.first_name
+                        }
+                    ],
+                    "Subject": "Greetings from Raketraket.com",
+                    "TextPart": "Thank you for signing up.",
+                    "HTMLPart": f"<p> Please click the link below to activate your account </p> <form action = 'https://raketraket.herokuapp.com/confirm/email/{token}' method = 'POST'> <button type = 'submit'> Activate Email!</button></form>",
+                    "CustomID": "AppGettingStartedTest"
+                }
+            ]
+        }
 
-        # Create secure SSL Text
-        context = ssl.create_default_context()
-        context = ssl.create_default_context()
-
-        with smtplib.SMTP_SSL("smtp.gmail.com", self.port, context=context) as server:
-            # Compose Email
-            message["Subject"] = "Email Verification form raketraket.com"
-            message["From"] = self.email
-            message["To"] = self.user_email
-
-            email_body = """\
-            <html >
-                <body >
-                        <p > Hi Lou < /p >
-                        <p > This is a test to link < a href = "https://phstudies.com" > PH Studies < /a > </p >
-                    </body>
-                </html>
-                """
-            body = MIMEText(email_body, "html")
-            message.attach(body)
-
-            # Server Login
-            server.login(self.email, self.password)
-
-            # Send Email
-            server.sendmail(self.email, self.user_email, message.as_string())
+        result = mailjet.send.create(data=data)
+        return result.status_code
