@@ -84,6 +84,10 @@ def login():
             if user.confirmed:
                 login_user(user)
                 return redirect("/")
+            else:
+                flash("Please confirm your email address!")
+        else:
+            flash("Invalid credentials, please try again!")
     return render_template("/users/login.html", login_form=login_form)
 
 
