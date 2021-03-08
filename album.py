@@ -5,16 +5,16 @@ from models import db, Album
 from flask import g
 from PIL import Image, UnidentifiedImageError
 from decouple import config
-from werkzeug.utils import secure_filename
 
 bucket_name = 'raketraket'
 BUCKET_URL = config('AWS_OBJECT_URL')
-
+ACCESS_KEY = config('AWS_ACCESS_KEY')
+SECRET_KEY = config('AWS_API_SECRET')
 
 s3 = boto3.client(
     's3',
-    aws_access_key_id='AKIAI57ZQQCTOVBV6VCQ',
-    aws_secret_access_key='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'
+    aws_access_key_id=ACCESS_KEY,
+    aws_secret_access_key=SECRET_KEY
 )
 
 
@@ -29,9 +29,9 @@ class MyAlbum():
         """Handles changing of profile image of user"""
         try:
             # Remove current profile image stored
-            if not g.user.profile == "default-icon.png":
+            s3key = g.user.profile.split('/')
+            if not s3key[3] == "default-icon.png":
                 try:
-                    s3key = g.user.profile.split('/')
                     s3.delete_object(Bucket=bucket_name, Key=s3key[3])
                 except FileNotFoundError as error:
                     print("No image found!")
@@ -54,11 +54,10 @@ class MyAlbum():
                 Filename=s3file,
                 Key=filename
             )
-
             # Update database
             return BUCKET_URL + filename
         except:
-            return "default-icon.png"
+            return BUCKET_URL + "default-icon.png"
 
     def validate_album(self, images):
         """Handles image upload for bluecollar album"""
