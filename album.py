@@ -1,8 +1,21 @@
 import os
 import uuid
+import boto3
 from models import db, Album
 from flask import g
 from PIL import Image, UnidentifiedImageError
+from decouple import config
+from werkzeug.utils import secure_filename
+
+bucket_name = 'raketraket'
+BUCKET_URL = config('AWS_OBJECT_URL')
+
+
+s3 = boto3.client(
+    's3',
+    aws_access_key_id='AKIAI57ZQQCTOVBV6VCQ',
+    aws_secret_access_key='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'
+)
 
 
 class MyAlbum():
@@ -18,7 +31,8 @@ class MyAlbum():
             # Remove current profile image stored
             if not g.user.profile == "default-icon.png":
                 try:
-                    os.remove(self.path + g.user.profile)
+                    s3key = g.user.profile.split('/')
+                    s3.delete_object(Bucket=bucket_name, Key=s3key[3])
                 except FileNotFoundError as error:
                     print("No image found!")
 
@@ -30,11 +44,19 @@ class MyAlbum():
             image.thumbnail((400, 400))
             filename = str(uuid.uuid4().hex) + '.png'
 
-            # Save image to folder
-            image.save(os.path.join(self.path + filename))
+            # Save temp image to local folder
+            s3file = os.path.join(self.path + filename)
+            image.save(s3file)
+
+            # upload file to amazon s3
+            s3.upload_file(
+                Bucket=bucket_name,
+                Filename=s3file,
+                Key=filename
+            )
 
             # Update database
-            return filename
+            return BUCKET_URL + filename
         except:
             return "default-icon.png"
 
@@ -48,14 +70,32 @@ class MyAlbum():
             file_ext = os.path.splitext(image.filename)[1]
             filename = str(uuid.uuid4().hex) + file_ext
 
-            # Save image to folder
-            img.save(os.path.join(self.path + filename))
+            # Save temp image to local folder
+            s3file = os.path.join(self.path + filename)
+            img.save(s3file)
+
+            # Upload image to amazon s3
+            s3.upload_file(
+                Bucket=bucket_name,
+                Filename=s3file,
+                Key=filename
+            )
 
             # add image link to database
             add_image = Album(
-                filename=filename,
+                filename=BUCKET_URL + filename,
                 user_id=g.user.id
             )
             db.session.add(add_image)
             db.session.commit()
         return True
+
+    def delete_image(filename):
+        """Handles image deletion from Amazon S3"""
+
+        try:
+            s3key = filename.split('/')
+            s3.delete_object(Bucket=bucket_name, Key=s3key[3])
+            return True
+        except:
+            return False
