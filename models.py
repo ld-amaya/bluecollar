@@ -1,10 +1,13 @@
 from flask_bcrypt import Bcrypt
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
+from decouple import config
 
 bcrypt = Bcrypt()
 db = SQLAlchemy()
-profile_pix = "default-icon.png"
+BUCKET_URL = config('AWS_OBJECT_URL')
+
+profile_pix = BUCKET_URL + "default-icon.png"
 
 
 class Service(db.Model):
