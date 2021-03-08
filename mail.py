@@ -15,6 +15,7 @@ class Mail():
         """Handles sending of email"""
 
         mailjet = Client(auth=(api_key, api_secret), version='v3.1')
+
         data = {
             'Messages': [
                 {
@@ -30,7 +31,7 @@ class Mail():
                     ],
                     "Subject": "Greetings from Raketraket.com",
                     "TextPart": "Thank you for signing up.",
-                    "HTMLPart": f"<p> Please click the link below to activate your account </p> <form action = 'https://raketraket.herokuapp.com/confirm/email/{token}' method = 'POST'> <button type = 'submit'> Activate Email!</button></form>",
+                    "HTMLPart": f"<table> Please click the link below to activate your account</p><form action = 'https://raketraket.herokuapp.com/confirm/email/{token}' method = 'POST'> <button type = 'submit'> Activate Email!</button></form>",
                     "CustomID": "AppGettingStartedTest"
                 }
             ]
