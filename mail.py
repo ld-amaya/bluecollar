@@ -31,7 +31,7 @@ class Mail():
                     ],
                     "Subject": "Greetings from Raketraket.com",
                     "TextPart": "Thank you for signing up.",
-                    "HTMLPart": f"<table> Please click the link below to activate your account</p><form action = 'https://raketraket.herokuapp.com/confirm/email/{token}' method = 'POST'> <button type = 'submit'> Activate Email!</button></form><p> Or copy and paste the link below </p> https://raketraket.herokuapp.com/confirm/email/{token}",
+                    "HTMLPart": f"Please click the link below to activate your account</p><form action = 'https://raketraket.herokuapp.com/confirm/email/{token}' method = 'POST'> <button type = 'submit'> Activate Email!</button></form><p> Or copy and paste the link below </p> https://raketraket.herokuapp.com/confirm/email/{token}",
                     "CustomID": "AppGettingStartedTest"
                 }
             ]
