@@ -2,11 +2,15 @@
 
 import os
 import io
+import boto3
 from unittest import TestCase
 from app import app, CURRENT_USER_KEY
 from flask import g
 from models import db, User, Service, User_Service, Comment, Message, Type, Job, City, User_Type
 from flask_bcrypt import Bcrypt
+from datetime import datetime
+from decouple import config
+
 
 bcrypt = Bcrypt()
 
@@ -16,6 +20,16 @@ app.config['SQLALCHEMY_ECHO'] = False
 # Disable wtf csrf token validation
 app.config['WTF_CSRF_ENABLED'] = False
 
+BUCKET = config('AWS_BUCKET')
+BUCKET_URL = config('AWS_OBJECT_URL')
+ACCESS_KEY = config('AWS_ACCESS_KEY')
+SECRET_KEY = config('AWS_API_SECRET')
+
+S3 = boto3.client(
+    's3',
+    aws_access_key_id=ACCESS_KEY,
+    aws_secret_access_key=SECRET_KEY
+)
 
 db.drop_all()
 db.create_all()
@@ -103,8 +117,9 @@ class UserViewTest(TestCase):
             city_id=self.city.id,
             rating=2,
             title="Best Carpenter",
-            description="I am betting to be the best carpenter"
-        )
+            description="I am betting to be the best carpenter",
+            confirmed=True,
+            confirmed_on=datetime.utcnow())
         user2 = User(
             profile="default-icon.png",
             first_name="General",
@@ -116,7 +131,9 @@ class UserViewTest(TestCase):
             city_id=self.city.id,
             rating=3,
             title="Best Electrician",
-            description="Electrecute me and you will see"
+            description="Electrecute me and you will see",
+            confirmed=True,
+            confirmed_on=datetime.utcnow()
         )
         db.session.add(user1)
         db.session.add(user2)
@@ -418,7 +435,6 @@ class UserViewTest(TestCase):
             data = {
                 'profile_pix': (io.BytesIO(b"abcdef"), self.Image)
             }
-
             with client.session_transaction() as session:
                 session[CURRENT_USER_KEY] = self.user1.id
                 g.user = self.user1
@@ -430,8 +446,10 @@ class UserViewTest(TestCase):
             self.assertEqual(response.status_code, 200)
             self.assertIn("Profile successfully changed", html)
 
-            # Remove image form file
-            os.remove('static/images/profiles/' + g.user.profile)
+            # Remove image from local file and from S3
+            filename = g.user.profile.split('/')
+            os.remove('static/images/profiles/' + filename[3])
+            S3.delete_object(Bucket=BUCKET, Key=filename[3])
 
     def test_non_image_upload_authenticated(self):
         """Test non-image upload for authenticated user"""
