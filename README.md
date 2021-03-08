@@ -1,6 +1,7 @@
 # Blue Collar
 
-Python  JavaScript  Git  HTML5  CSS3  Visual Studio Code  AXIOS  Heroku  Postgres  Bootstrap  FontAwesome  jQuery  Flask  WTForms  SQLAlchemy AWS
+https://raketraket.herokuapp.com
+
 
 ## About
 
