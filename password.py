@@ -5,8 +5,6 @@ from decouple import config
 from flask_bcrypt import Bcrypt
 
 bcrypt = Bcrypt()
-ACCESS_KEY = config('API_KEY')
-API_URL = 'http://apilayer.net/api/check'
 valid_data = '^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*^#?&])[A-Za-z\d@$!#^%*?&]{6,20}$'
 
 
