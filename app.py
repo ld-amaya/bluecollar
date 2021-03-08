@@ -81,8 +81,9 @@ def login():
         user = User.login(login_form.email.data,
                           login_form.password.data)
         if user:
-            login_user(user)
-            return redirect("/")
+            if user.confirmed:
+                login_user(user)
+                return redirect("/")
     return render_template("/users/login.html", login_form=login_form)
 
 
