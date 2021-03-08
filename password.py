@@ -7,7 +7,7 @@ from flask_bcrypt import Bcrypt
 bcrypt = Bcrypt()
 ACCESS_KEY = os.environ.get('API_KEY', '196f3c50ef5d095637d9134e731ac22c')
 API_URL = 'http://apilayer.net/api/check'
-valid_data = '^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!#%*?&]{6,20}$'
+valid_data = '^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*^#?&])[A-Za-z\d@$!#^%*?&]{6,20}$'
 
 
 class Password():
