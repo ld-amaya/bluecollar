@@ -9,11 +9,7 @@
                 <div class="col-md-3 my-3">
                     <div class="card">
                         <a href="/worker/{{carpenter.id}}">
-                            {% if carpenter.profile %}
-                                <img src="/static/images/profiles/{{carpenter.profile}}" class ="card-img-top" alt="default image">
-                            {% else %}
-                                <img src="/static/images/profiles/default-icon.png" class ="card-img-top" alt="default image">
-                            {% endif %}
+                           <img src="{{carpenter.profile}}" class ="card-img-top" alt="default image">
                         </a>
                         <h6 class ="mt-2 text-center">
                             {% if carpenter.rating %}
@@ -40,11 +36,7 @@
                 <div class="col-md-3 my-3">
                     <div class="card">
                         <a href="/worker/{{painter.id}}">
-                            {% if painter.profile %}
-                                <img src="/static/images/profiles/{{painter.profile}}" class ="card-img-top" alt="default image">
-                            {% else %}
-                                <img src="/static/images/profiles/default-icon.png" class ="card-img-top" alt="default image">
-                            {% endif %}
+                            <img src="{{painter.profile}}" class ="card-img-top" alt="default image">
                         </a>
                         <h6 class ="mt-2 text-center">
                             {% if painter.rating %}
@@ -71,11 +63,7 @@
                 <div class="col-md-3 my-3">
                     <div class="card">
                         <a href="/worker/{{plumber.id}}">
-                            {% if plumber.profile %}
-                                <img src="/static/images/profiles/{{plumber.profile}}" class ="card-img-top" alt="default image">
-                            {% else %}
-                                <img src="/static/images/profiles/default-icon.png" class ="card-img-top" alt="default image">
-                            {% endif %}
+                            <img src="{{plumber.profile}}" class ="card-img-top" alt="default image">
                         </a>    
                         <h6 class ="mt-2 text-center">
                             {% if plumber.rating %}
@@ -102,11 +90,7 @@
                 <div class="col-md-3 my-3">
                     <div class="card">
                         <a href="/worker/{{electrician.id}}">
-                            {% if electrician.profile %}
-                                <img src="/static/images/profiles/{{electrician.profile}}" class ="card-img-top" alt="default image">
-                            {% else %}
-                                <img src="/static/images/profiles/default-icon.png" class ="card-img-top" alt="default image">
-                            {% endif %}
+                            <img src="{{electrician.profile}}" class ="card-img-top" alt="default image">
                         </a>
                         <h6 class ="mt-2 text-center">
                             {% if electrician.rating %}

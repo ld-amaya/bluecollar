@@ -8,11 +8,7 @@
             <div class="col-md-3 my-3">
                 <div class="card">
                     <a href="/worker/{{service.id}}">
-                        {% if service.profile %}
-                            <img src="/static/images/profiles/{{service.profile}}" class ="card-img-top" alt="default image">
-                        {% else %}
-                            <img src="/static/images/profiles/default-icon.png" class ="card-img-top" alt="default image">
-                        {% endif %}
+                        <img src="{{service.profile}}" class ="card-img-top" alt="default image">
                     </a>
                     <div class="card-body">
                         <h6>{{service.first_name}} {{service.last_name}} </h6>
