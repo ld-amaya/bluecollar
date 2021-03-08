@@ -6,7 +6,7 @@ from flask import g
 from PIL import Image, UnidentifiedImageError
 from decouple import config
 
-bucket_name = 'raketraket'
+BUCKET = config('AWS_BUCKET')
 BUCKET_URL = config('AWS_OBJECT_URL')
 ACCESS_KEY = config('AWS_ACCESS_KEY')
 SECRET_KEY = config('AWS_API_SECRET')
@@ -29,10 +29,10 @@ class MyAlbum():
         """Handles changing of profile image of user"""
         try:
             # Remove current profile image stored
-            s3key = g.user.profile.split('/')
-            if not s3key[3] == "default-icon.png":
+            if "default-icon.png" not in g.user.profile:
+                s3key = g.user.profile("/")
                 try:
-                    s3.delete_object(Bucket=bucket_name, Key=s3key[3])
+                    s3.delete_object(Bucket=BUCKET, Key=s3key[3])
                 except FileNotFoundError as error:
                     print("No image found!")
 
@@ -50,7 +50,7 @@ class MyAlbum():
 
             # upload file to amazon s3
             s3.upload_file(
-                Bucket=bucket_name,
+                Bucket=BUCKET,
                 Filename=s3file,
                 Key=filename
             )
@@ -75,7 +75,7 @@ class MyAlbum():
 
             # Upload image to amazon s3
             s3.upload_file(
-                Bucket=bucket_name,
+                Bucket=BUCKET,
                 Filename=s3file,
                 Key=filename
             )
@@ -94,7 +94,7 @@ class MyAlbum():
 
         try:
             s3key = filename.split('/')
-            s3.delete_object(Bucket=bucket_name, Key=s3key[3])
+            s3.delete_object(Bucket=BUCKET, Key=s3key[3])
             return True
         except:
             return False
