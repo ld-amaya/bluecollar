@@ -13,6 +13,13 @@ class LoginForm(FlaskForm):
         InputRequired(), Length(min=8, max=100)])
 
 
+class TokenForm(FlaskForm):
+    """Defines token form"""
+    email = StringField('Email', validators=[
+        InputRequired(), Email(), Length(min=1, max=50)])
+    first_name = StringField('First Name')
+
+
 class CommentForm(FlaskForm):
     """Defines Comment Form"""
     title = StringField('Title', validators=[InputRequired()])
