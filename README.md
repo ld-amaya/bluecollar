@@ -2,8 +2,12 @@
 
 https://raketraket.herokuapp.com
 
-### Stack
+## Stack
 <a src ='https://www.python.org/'>  <img src ='static/images/readme_images/python.svg' alt ='Python' width='20px' height ='20px'><a>
+<a src ='https://flask.palletsprojects.com/en/1.1.x/'>  <img src ='static/images/readme_images/flask.svg' alt ='Python' width='20px' height ='20px'><a>
+<a src ='https://www.postgresql.org/'>  <img src ='static/images/readme_images/postgresql.svg' alt ='Python' width='20px' height ='20px'><a>
+<a src ='https://www.sqlalchemy.org/'>  <img src ='static/images/readme_images/sqlalchemy.png.png' alt ='Python' width='20px' height ='20px'><a>
+<a src ='https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/HTML5'>  <img src ='static/images/readme_images/html-5.svg' alt ='Python' width='20px' height ='20px'><a>
 
 ## About
 
