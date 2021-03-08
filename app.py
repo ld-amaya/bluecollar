@@ -16,6 +16,7 @@ from mail import Mail
 
 
 CURRENT_USER_KEY = "current_user"
+BUCKET_URL = config('AWS_OBJECT_URL')
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = config('SECRET_KEY')
@@ -32,6 +33,7 @@ app.config['SQLALCHEMY_ECHO'] = True
 app.config['UPLOAD_PROFILE_PATH'] = 'static/images/profiles/'
 app.config['UPLOAD_ALBUM_PATH'] = 'static/images/uploads/'
 app.config['UPLOAD_EXTENSIONS'] = ['.jpg', '.png']
+
 
 connect_db(app)
 
@@ -263,7 +265,7 @@ def register(user_type):
 
     if form.validate_on_submit():
         # Create profile image file name
-        filename = "default-icon.png"
+        filename = BUCKET_URL + "default-icon.png"
         if form.profile.data:
             img = MyAlbum(app.config['UPLOAD_PROFILE_PATH'],
                           app.config['UPLOAD_EXTENSIONS'])
@@ -406,7 +408,7 @@ def image_upload():
         images = form.profile_pix.data
         filename = img.validate_profile(images)
         if filename:
-            g.user.profile = filename
+            g.user.profile = BUCKET_URL + filename
             db.session.add(g.user)
             db.session.commit()
             flash("Profile successfully changed", "success")
@@ -451,9 +453,7 @@ def delete_image(image_id):
     db.session.commit()
 
     # Remove image from local File
-    try:
-        os.remove(app.config['UPLOAD_ALBUM_PATH'] + filename)
-    except FileNotFoundError as error:
+    if not MyAlbum.delete_image(filename):
         print("No image found!")
     return redirect("/album/upload")
 
