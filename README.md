@@ -3,7 +3,7 @@
 https://raketraket.herokuapp.com
 
 ### Stack
-<img src ='static/images/readme_images/python.svg' alt ='Python' width='20px' height ='20px'>Python
+<a src ='https://www.python.org/>  <img src ='static/images/readme_images/python.svg' alt ='Python' width='20px' height ='20px'><a>
 
 ## About
 
