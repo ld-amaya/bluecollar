@@ -377,7 +377,7 @@ def password_edit():
             form.confirm_password.errors.append(
                 "Password must contain numbers")
             form.confirm_password.errors.append(
-                "Passowrd must contain special characters")
+                "Passowrd must contain special characters @$!%*^#?&")
             form.confirm_password.errors.append(
                 "Password must contain lowercase and uppercase")
             return render_template("/users/password.html", form=form)
@@ -408,7 +408,7 @@ def image_upload():
         images = form.profile_pix.data
         filename = img.validate_profile(images)
         if filename:
-            g.user.profile = BUCKET_URL + filename
+            g.user.profile = filename
             db.session.add(g.user)
             db.session.commit()
             flash("Profile successfully changed", "success")
