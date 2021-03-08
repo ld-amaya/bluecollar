@@ -2,6 +2,8 @@
 
 https://raketraket.herokuapp.com
 
+### Stack
+<img src ='static/images/python.svg>Python
 
 ## About
 
