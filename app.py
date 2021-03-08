@@ -2,7 +2,7 @@ import os
 from flask import Flask, request, render_template, jsonify, flash, session, redirect, g
 from flask_debugtoolbar import DebugToolbarExtension
 from models import db, connect_db, User, City, Service, User_Service, Comment, Message, Album, Type
-from forms import RegistrationForm, WorkerForm, LoginForm, CommentForm, MessageForm, PasswordForm, UserProfileForm, WorkerProfileForm, JobForm, ImageForm, AlbumForm
+from forms import RegistrationForm, WorkerForm, LoginForm, CommentForm, MessageForm, PasswordForm, UserProfileForm, WorkerProfileForm, JobForm, ImageForm, AlbumForm, TokenForm
 from itsdangerous import URLSafeTimedSerializer
 from registration import Registration
 from user import UserProfile
@@ -249,7 +249,31 @@ def confirm_email(token):
             flash("Thank you for confirming your account", "success")
         return redirect("/")
     except:
-        return redirect("/")
+        flash("We cannot validate your email, enter your email address to resend token.")
+        return redirect("/email/token")
+
+
+@app.route("/email/token", methods=["GET", "POST"])
+def email_token():
+    """Handles resending of email confirmation"""
+    # Send email verification to user
+    form = TokenForm()
+    if form.validate_on_submit():
+        # check if mail is registered
+        user = User.query.filter(User.email == form.email.data).first()
+        if user:
+            mail = Mail(form.email.data, form.first_name.data)
+            serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+            token = serializer.dumps(
+                form.email.data, salt=app.config['SECURITY_PASSWORD_SALT'])
+            result = mail.send_confirmation_email(token)
+            if result == 200:
+                flash("Please confirm you email to activate account!", "success")
+            return redirect("/")
+        else:
+            flash(
+                "Email is not registered in our file, please try another email or register to continue!")
+    return render_template("/users/token.html", form=form)
 
 
 #################### GET, POST ROUTES ###########################################
