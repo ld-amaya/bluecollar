@@ -37,9 +37,14 @@ I thought to myself, if there is a website like airbnb that creates an ecosystem
 This project intends to solve the problem that I encountered and create an environment where bluecollar workers and potential clients meet together in one platform. That a good job is actually rated good, so as the bad ones. That it helps bluecollar workers create a free marketing for their skills set and provide a venue for them to guage their performance. That potential clients can easily find bluecollar workers near their area and can see if their portfolio.
 
 > NOTE:
->
->Currently this project only covers my hometown, ***PROVINCE OF CEBU***, as my test City.
->I will be including the rest of the Philippines in the near future
+> - For now, I have only included the following bluecollar jobs: Carpenter, Painter, Electrician and Plumber
+> - Currently this project only covers my hometown, ***PROVINCE OF CEBU***, as my test City.
+> - I will be adding more bluecollar jobs and increase the scope to Entire Philippines in the near future.
 
 ## User Flow
 
+You do not need to be registered to browse the current bluecollar workers available, but you need to be registered to be able to send message, make comment or ratings.
+
+During registration, you will be asked if you are a Bluecollar or an Ordinary User
+
+<img src='static/images/readme_images/selection.png'>
