@@ -47,4 +47,4 @@ You do not need to be registered to browse the current bluecollar workers availa
 
 During registration, you will be asked if you are a Bluecollar or an Ordinary User
 
-<img src='static/images/readme_images/selection.png'>
+<img src='static/images/readme_images/selection.png' width='60%'>
