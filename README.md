@@ -16,6 +16,12 @@ https://raketraket.herokuapp.com
 <a href ='https://getbootstrap.com/'>  <img src ='static/images/readme_images/bootstrap.svg' alt ='JQuery' width='20px' height ='20px'> </a> &nbsp;
 <a href ='https://fontawesome.com/'>  <img src ='static/images/readme_images/font-awesome.svg' alt ='Font Awesome' width='20px' height ='20px'> </a> &nbsp;
 
+## API's Used 
+
+- [Mailbox Layer](https://mailboxlayer.com/)
+- [MailJet](https://www.mailjet.com/)
+- [AWS S3](https://aws.amazon.com)
+
 ## About
 
 Back when I was in the Philippines, I was trying to rennovate our house. 
@@ -29,10 +35,3 @@ To make the story short, it took me over a week to be able to find a carpenter n
 Ever since that day, if there is a website like airbnb that creates an ecosystem for units for rent, then there is no reason why I cannot create an ecosystem for bluecollar workers.
 
 This project intends to solve the problem that I encountered and create an environment where bluecollar workers and potential clients meet together in one platform. That a good job is actually rated good, so as the bad ones. That it helps bluecollar workers create a free marketing for their skills set and provide a venue for them to guage their performance. That potential clients can easily find bluecollar workers near their area and can see if their portfolio.
-
-
-## API's Used 
-
-- [Mailbox Layer](https://mailboxlayer.com/)
-- [MailJet](https://www.mailjet.com/)
-- [AWS S3](https://aws.amazon.com)
