@@ -4,3 +4,4 @@ venv/
 .env
 logo.png
 mailjet.py
+static/images/readme_images/.DS_Store
