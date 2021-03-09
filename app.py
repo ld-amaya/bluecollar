@@ -1,5 +1,5 @@
 import os
-from flask import Flask, request, render_template, jsonify, flash, session, redirect, g
+from flask import Flask, request, render_template, jsonify, flash, session, redirect, g, Markup
 from flask_debugtoolbar import DebugToolbarExtension
 from models import db, connect_db, User, City, Service, User_Service, Comment, Message, Album, Type
 from forms import RegistrationForm, WorkerForm, LoginForm, CommentForm, MessageForm, PasswordForm, UserProfileForm, WorkerProfileForm, JobForm, ImageForm, AlbumForm, TokenForm
@@ -85,7 +85,8 @@ def login():
                 login_user(user)
                 return redirect("/")
             else:
-                flash("Please confirm your email address!")
+                flash(Markup(
+                    "Please confirm your email address. <a href='/email/token' id='resend_token'> Resend Token </a>"))
         else:
             flash("Invalid credentials, please try again!")
     return render_template("/users/login.html", login_form=login_form)
