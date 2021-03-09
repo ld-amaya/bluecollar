@@ -47,20 +47,14 @@ class MyAlbum():
             # Save temp image to local folder
             s3file = os.path.join(self.path + filename)
             image.save(s3file)
-            print('#############4th##################')
-            print(BUCKET)
-            print(s3file)
-            print(filename)
-            print('#############4th##################')
+
             # upload file to amazon s3
             s3.upload_file(
                 Bucket=BUCKET,
                 Filename=s3file,
                 Key=filename
             )
-            print('#############5th##################')
-            print(BUCKET + filename)
-            print('#############5th##################')
+
             # Update database
             return BUCKET_URL + filename
         except:
