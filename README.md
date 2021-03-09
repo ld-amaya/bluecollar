@@ -68,3 +68,6 @@ If a user does not verify his/her email, user will not be allowed to log-in.
 <div align='center'>
     <img src='static/images/readme_images/email_confirmation.png' alt= 'Need email confirmation' width ='60%'>
 </div>
+
+Once the user verified his email address, user can use the apps entire features:
+
