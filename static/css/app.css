@@ -117,3 +117,6 @@ a,
 .jumbotron{
     padding:0px;
 }
+#resend_token{
+    color:black;
+}
