@@ -53,7 +53,7 @@ class MyAlbum():
             print(image)
             print('#############3rd##################')
             # Save temp image to local folder
-            s3file = os.path.join(self.path + filename)
+            s3file = os.path.join("/" + self.path + filename)
             image.save(s3file)
             print('#############4th##################')
             print(s3file)
@@ -64,9 +64,9 @@ class MyAlbum():
                 Filename=s3file,
                 Key=filename
             )
-            print('#############4th##################')
+            print('#############5th##################')
             print(BUCKET + filename)
-            print('#############4th##################')
+            print('#############5th##################')
             # Update database
             return BUCKET_URL + filename
         except:
