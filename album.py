@@ -27,6 +27,9 @@ class MyAlbum():
 
     def validate_profile(self, images):
         """Handles changing of profile image of user"""
+        print('#############1st##################')
+        print(images)
+        print('#############1st##################')
         try:
             # Remove current profile image stored
             if "default-icon.png" not in g.user.profile:
@@ -37,23 +40,33 @@ class MyAlbum():
                     print("No image found!")
 
             # Resize profile image using pillow
+            print('#############2nd##################')
+            print(images)
+            print('#############2nd##################')
             try:
                 image = Image.open(images)
             except UnidentifiedImageError as error:
                 image = Image.open(images.filename)
             image.thumbnail((400, 400))
             filename = str(uuid.uuid4().hex) + '.png'
-
+            print('#############3rd##################')
+            print(image)
+            print('#############3rd##################')
             # Save temp image to local folder
             s3file = os.path.join(self.path + filename)
             image.save(s3file)
-
+            print('#############4th##################')
+            print(s3file)
+            print('#############4th##################')
             # upload file to amazon s3
             s3.upload_file(
                 Bucket=BUCKET,
                 Filename=s3file,
                 Key=filename
             )
+            print('#############4th##################')
+            print(BUCKET + filename)
+            print('#############4th##################')
             # Update database
             return BUCKET_URL + filename
         except:
