@@ -60,13 +60,13 @@ The following are registration requirements.
 An email will be sent to registered email for verification.
 
 <div align='center'>
-    <img src='static/images/readme_images/email.png' alt= 'Email Sent' width ='60%'>
+    <img src='static/images/readme_images/email.png' alt= 'Email Sent'>
 </div>
 
 If a user does not verify his/her email, user will not be allowed to log-in.
 
 <div align='center'>
-    <img src='static/images/readme_images/email_confirmation.png' alt= 'Need email confirmation' width ='60%'>
+    <img src='static/images/readme_images/email_confirmation.png' alt= 'Need email confirmation'>
 </div>
 
 Once the user verified his email address, user can use the apps entire features:
