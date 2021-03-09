@@ -55,4 +55,4 @@ The following are registration requirements
 
 | Bluecollar Registration | User Registration |
 |-------------------------|-------------------|
-|<img src='static/images/readme_images/bluecollar.png' alt='Bluecollar Registration' width='80%' style='text-align:center;'> | <img src='static/images/readme_images/user.png' alt='User Registration' width='80%' style='text-align:center;'> |
+|<img src='static/images/readme_images/bluecollar.png' alt='Bluecollar Registration' style='text-align:center;'> | <img src='static/images/readme_images/user.png' alt='User Registration' style='text-align:center;'> |
