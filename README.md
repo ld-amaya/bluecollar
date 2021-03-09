@@ -48,11 +48,23 @@ You do not need to be registered to browse the current bluecollar workers availa
 During registration, you will be asked if you are a Bluecollar or an Ordinary User
 
 <div align='center'>
-<img src='static/images/readme_images/selection.png' alt='Selection' width='60%' style='text-align:center;'>
+<img src='static/images/readme_images/selection.png' alt='Selection' width='60%'>
 </div>
 
-The following are registration requirements
+The following are registration requirements.
 
-| Bluecollar Registration | User Registration |
+| Bluecollar | User |
 |-------------------------|-------------------|
 |<img src='static/images/readme_images/bluecollar.png' alt='Bluecollar Registration' style='text-align:center;'> | <img src='static/images/readme_images/user.png' alt='User Registration' style='text-align:center;'> |
+
+An email will be sent to registered email for verification.
+
+<div align='center'>
+    <img src='static/images/readme_images/email.png' alt= 'Email Sent' width ='60%'>
+</div>
+
+If a user does not verify his/her email, user will not be allowed to log-in.
+
+<div align='center'>
+    <img src='static/images/readme_images/email_confirmation.png' alt= 'Need email confirmation' width ='60%'>
+</div>
