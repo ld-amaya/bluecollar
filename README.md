@@ -50,3 +50,9 @@ During registration, you will be asked if you are a Bluecollar or an Ordinary Us
 <div align='center'>
 <img src='static/images/readme_images/selection.png' alt='Selection' width='60%' style='text-align:center;'>
 </div>
+
+The following are registration requirements
+
+| Bluecollar Registration | User Registration |
+|-------------------------|-------------------|
+|<img src='static/images/readme_images/bluecollar.png' alt='Bluecollar Registration' width='40%' style='text-align:center;'> | <img src='static/images/readme_images/user.png' alt='User Registration' width='40%' style='text-align:center;'> |
