@@ -71,3 +71,32 @@ If a user does not verify his/her email, user will not be allowed to log-in.
 
 Once the user verified his email address, user can use the apps entire features:
 
+### Send / Recieve Messages
+
+<div align='center'>
+    <img src='static/images/readme_images/messages.png' alt= 'Messages' width ='60%'>
+</div>
+
+### Add coments and rating
+
+<div align='center'>
+    <img src='static/images/readme_images/comments.png' alt= 'Messages' width ='60%'>
+</div>
+
+### Update Profile
+
+<div align='center'>
+    <img src='static/images/readme_images/personal_profile.png' alt= 'Messages' width ='60%'>
+</div>
+
+### Upload Images (All uploaded images are stored in AWS S3)
+
+<div align='center'>
+    <img src='static/images/readme_images/image_upload.png' alt= 'Messages' width ='60%'>
+</div>
+
+### Change Password
+
+<div align='center'>
+    <img src='static/images/readme_images/change_password.png' alt= 'Messages' width ='60%'>
+</div>
