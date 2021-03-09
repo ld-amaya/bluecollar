@@ -38,7 +38,8 @@ This project intends to solve the problem that I encountered and create an envir
 
 > NOTE:
 >
->_Currently this project only covers my hometown, ***PROVINCE OF CEBU***, as my test City. I will be including the rest of the Philippines in the near future_
+>Currently this project only covers my hometown, ***PROVINCE OF CEBU***, as my test City.
+>I will be including the rest of the Philippines in the near future
 
 ## User Flow
 
